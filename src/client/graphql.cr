@@ -7,8 +7,8 @@ class CaidoClient
         @instance = GraphQLClient.new endpoint
     end
 
-    def send_query(query : String, data : Hash(String, String))
-        @instance.instance.send_query query, data
+    def send_query(query : String)
+        @instance.useQuery query
     end
 end
 
