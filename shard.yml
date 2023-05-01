@@ -6,4 +6,8 @@ authors:
 
 crystal: 1.8.1
 
+dependencies:
+  graphql:
+    github: graphql-crystal/graphql
+
 license: MIT
