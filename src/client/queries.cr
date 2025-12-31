@@ -1,11 +1,13 @@
+require "./utils"
+
 module CaidoQueries
   # Query templates for common Caido GraphQL operations
 
   module Requests
     # Get all requests with pagination
     def self.all(after : String? = nil, first : Int32 = 50, filter : String? = nil)
-      filter_clause = filter ? %Q(filter: "#{filter}") : ""
-      after_clause = after ? %Q(after: "#{after}") : ""
+      filter_clause = CaidoUtils.build_filter_clause(filter)
+      after_clause = after ? %Q(after: "#{CaidoUtils.escape_graphql_string(after)}") : ""
       
       %Q(
         query GetRequests {
@@ -52,9 +54,10 @@ module CaidoQueries
 
     # Get a single request by ID
     def self.by_id(id : String)
+      escaped_id = CaidoUtils.escape_graphql_string(id)
       %Q(
         query GetRequest {
-          request(id: "#{id}") {
+          request(id: "#{escaped_id}") {
             id
             host
             port
@@ -91,7 +94,7 @@ module CaidoQueries
 
     # Get requests by offset (alternative pagination)
     def self.by_offset(offset : Int32 = 0, limit : Int32 = 50, filter : String? = nil)
-      filter_clause = filter ? %Q(filter: "#{filter}") : ""
+      filter_clause = CaidoUtils.build_filter_clause(filter)
       
       %Q(
         query GetRequestsByOffset {
@@ -125,7 +128,7 @@ module CaidoQueries
   module Sitemap
     # Get root sitemap entries
     def self.root_entries(scope_id : String? = nil)
-      scope_clause = scope_id ? %Q(scopeId: "#{scope_id}") : ""
+      scope_clause = scope_id ? %Q(scopeId: "#{CaidoUtils.escape_graphql_string(scope_id)}") : ""
       
       %Q(
         query GetSitemapRootEntries {
@@ -149,9 +152,10 @@ module CaidoQueries
 
     # Get descendant entries of a parent
     def self.descendant_entries(parent_id : String, depth : String = "DIRECT")
+      escaped_parent_id = CaidoUtils.escape_graphql_string(parent_id)
       %Q(
         query GetSitemapDescendantEntries {
-          sitemapDescendantEntries(parentId: "#{parent_id}", depth: #{depth}) {
+          sitemapDescendantEntries(parentId: "#{escaped_parent_id}", depth: #{depth}) {
             nodes {
               id
               label
@@ -171,9 +175,10 @@ module CaidoQueries
 
     # Get a single sitemap entry
     def self.by_id(id : String)
+      escaped_id = CaidoUtils.escape_graphql_string(id)
       %Q(
         query GetSitemapEntry {
-          sitemapEntry(id: "#{id}") {
+          sitemapEntry(id: "#{escaped_id}") {
             id
             label
             kind
@@ -193,8 +198,8 @@ module CaidoQueries
   module Intercept
     # Get intercept entries
     def self.entries(after : String? = nil, first : Int32 = 50, filter : String? = nil)
-      filter_clause = filter ? %Q(filter: "#{filter}") : ""
-      after_clause = after ? %Q(after: "#{after}") : ""
+      filter_clause = CaidoUtils.build_filter_clause(filter)
+      after_clause = after ? %Q(after: "#{CaidoUtils.escape_graphql_string(after)}") : ""
       
       %Q(
         query GetInterceptEntries {
@@ -277,9 +282,10 @@ module CaidoQueries
 
     # Get a single scope
     def self.by_id(id : String)
+      escaped_id = CaidoUtils.escape_graphql_string(id)
       %Q(
         query GetScope {
-          scope(id: "#{id}") {
+          scope(id: "#{escaped_id}") {
             id
             name
             allowlist
@@ -293,7 +299,7 @@ module CaidoQueries
   module Findings
     # Get findings with pagination
     def self.all(after : String? = nil, first : Int32 = 50)
-      after_clause = after ? %Q(after: "#{after}") : ""
+      after_clause = after ? %Q(after: "#{CaidoUtils.escape_graphql_string(after)}") : ""
       
       %Q(
         query GetFindings {
@@ -325,9 +331,10 @@ module CaidoQueries
 
     # Get a single finding
     def self.by_id(id : String)
+      escaped_id = CaidoUtils.escape_graphql_string(id)
       %Q(
         query GetFinding {
-          finding(id: "#{id}") {
+          finding(id: "#{escaped_id}") {
             id
             title
             description
@@ -417,9 +424,10 @@ module CaidoQueries
 
     # Get a single workflow
     def self.by_id(id : String)
+      escaped_id = CaidoUtils.escape_graphql_string(id)
       %Q(
         query GetWorkflow {
-          workflow(id: "#{id}") {
+          workflow(id: "#{escaped_id}") {
             id
             name
             kind
@@ -449,7 +457,7 @@ module CaidoQueries
   module Replay
     # Get replay sessions
     def self.sessions(after : String? = nil, first : Int32 = 50)
-      after_clause = after ? %Q(after: "#{after}") : ""
+      after_clause = after ? %Q(after: "#{CaidoUtils.escape_graphql_string(after)}") : ""
       
       %Q(
         query GetReplaySessions {
@@ -478,9 +486,10 @@ module CaidoQueries
 
     # Get a single replay session
     def self.session_by_id(id : String)
+      escaped_id = CaidoUtils.escape_graphql_string(id)
       %Q(
         query GetReplaySession {
-          replaySession(id: "#{id}") {
+          replaySession(id: "#{escaped_id}") {
             id
             name
             activeEntry {
@@ -506,7 +515,7 @@ module CaidoQueries
 
     # Get replay session collections
     def self.collections(after : String? = nil, first : Int32 = 50)
-      after_clause = after ? %Q(after: "#{after}") : ""
+      after_clause = after ? %Q(after: "#{CaidoUtils.escape_graphql_string(after)}") : ""
       
       %Q(
         query GetReplaySessionCollections {
@@ -530,7 +539,7 @@ module CaidoQueries
   module Automate
     # Get automate sessions
     def self.sessions(after : String? = nil, first : Int32 = 50)
-      after_clause = after ? %Q(after: "#{after}") : ""
+      after_clause = after ? %Q(after: "#{CaidoUtils.escape_graphql_string(after)}") : ""
       
       %Q(
         query GetAutomateSessions {
@@ -558,9 +567,10 @@ module CaidoQueries
 
     # Get a single automate session
     def self.session_by_id(id : String)
+      escaped_id = CaidoUtils.escape_graphql_string(id)
       %Q(
         query GetAutomateSession {
-          automateSession(id: "#{id}") {
+          automateSession(id: "#{escaped_id}") {
             id
             name
             connection {
@@ -582,7 +592,7 @@ module CaidoQueries
 
     # Get automate tasks
     def self.tasks(after : String? = nil, first : Int32 = 50)
-      after_clause = after ? %Q(after: "#{after}") : ""
+      after_clause = after ? %Q(after: "#{CaidoUtils.escape_graphql_string(after)}") : ""
       
       %Q(
         query GetAutomateTasks {
@@ -773,9 +783,10 @@ module CaidoQueries
 
     # Get a single tamper rule
     def self.rule_by_id(id : String)
+      escaped_id = CaidoUtils.escape_graphql_string(id)
       %Q(
         query GetTamperRule {
-          tamperRule(id: "#{id}") {
+          tamperRule(id: "#{escaped_id}") {
             id
             name
             enabled

@@ -1,4 +1,4 @@
-require "spec"
+require "../src/client/utils"
 require "../src/client/graphql"
 require "../src/client/queries"
 require "../src/client/mutations"

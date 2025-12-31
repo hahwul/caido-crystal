@@ -1,17 +1,20 @@
+require "./utils"
+
 module CaidoMutations
   # Mutation templates for common Caido GraphQL operations
 
   module Requests
     # Update request metadata (color, label)
     def self.update_metadata(request_id : String, color : String? = nil, label : String? = nil)
+      escaped_id = CaidoUtils.escape_graphql_string(request_id)
       metadata_parts = [] of String
-      metadata_parts << %Q(color: "#{color}") if color
-      metadata_parts << %Q(label: "#{label}") if label
+      metadata_parts << %Q(color: "#{CaidoUtils.escape_graphql_string(color.not_nil!)}") if color
+      metadata_parts << %Q(label: "#{CaidoUtils.escape_graphql_string(label.not_nil!)}") if label
       metadata_input = metadata_parts.join(", ")
       
       %Q(
         mutation UpdateRequestMetadata {
-          updateRequestMetadata(id: "#{request_id}", input: { #{metadata_input} }) {
+          updateRequestMetadata(id: "#{escaped_id}", input: { #{metadata_input} }) {
             request {
               id
               metadata {
@@ -27,9 +30,10 @@ module CaidoMutations
 
     # Render a request with environment variables
     def self.render(request_id : String)
+      escaped_id = CaidoUtils.escape_graphql_string(request_id)
       %Q(
         mutation RenderRequest {
-          renderRequest(id: "#{request_id}", input: {}) {
+          renderRequest(id: "#{escaped_id}", input: {}) {
             request {
               id
               raw
@@ -43,9 +47,10 @@ module CaidoMutations
   module Sitemap
     # Create sitemap entries from a request
     def self.create_entries(request_id : String)
+      escaped_id = CaidoUtils.escape_graphql_string(request_id)
       %Q(
         mutation CreateSitemapEntries {
-          createSitemapEntries(requestId: "#{request_id}") {
+          createSitemapEntries(requestId: "#{escaped_id}") {
             entries {
               id
               label
@@ -58,7 +63,7 @@ module CaidoMutations
 
     # Delete sitemap entries
     def self.delete_entries(entry_ids : Array(String))
-      ids_str = entry_ids.map { |id| %Q("#{id}") }.join(", ")
+      ids_str = CaidoUtils.build_string_array(entry_ids)
       
       %Q(
         mutation DeleteSitemapEntries {
@@ -106,14 +111,15 @@ module CaidoMutations
 
     # Forward an intercept message
     def self.forward_message(message_id : String, request : String? = nil, response : String? = nil)
+      escaped_id = CaidoUtils.escape_graphql_string(message_id)
       input_parts = [] of String
-      input_parts << %Q(request: "#{request}") if request
-      input_parts << %Q(response: "#{response}") if response
+      input_parts << %Q(request: "#{CaidoUtils.escape_graphql_string(request.not_nil!)}") if request
+      input_parts << %Q(response: "#{CaidoUtils.escape_graphql_string(response.not_nil!)}") if response
       input_str = input_parts.empty? ? "" : ", input: { #{input_parts.join(", ")} }"
       
       %Q(
         mutation ForwardInterceptMessage {
-          forwardInterceptMessage(id: "#{message_id}"#{input_str}) {
+          forwardInterceptMessage(id: "#{escaped_id}"#{input_str}) {
             success
           }
         }
@@ -122,9 +128,10 @@ module CaidoMutations
 
     # Drop an intercept message
     def self.drop_message(message_id : String)
+      escaped_id = CaidoUtils.escape_graphql_string(message_id)
       %Q(
         mutation DropInterceptMessage {
-          dropInterceptMessage(id: "#{message_id}") {
+          dropInterceptMessage(id: "#{escaped_id}") {
             success
           }
         }
@@ -165,7 +172,7 @@ module CaidoMutations
 
     # Delete intercept entries
     def self.delete_entries(filter : String? = nil)
-      filter_clause = filter ? %Q(filter: "#{filter}") : ""
+      filter_clause = CaidoUtils.build_filter_clause(filter)
       
       %Q(
         mutation DeleteInterceptEntries {
@@ -180,13 +187,14 @@ module CaidoMutations
   module Scopes
     # Create a new scope
     def self.create(name : String, allowlist : Array(String), denylist : Array(String) = [] of String)
-      allowlist_str = allowlist.map { |item| %Q("#{item}") }.join(", ")
-      denylist_str = denylist.map { |item| %Q("#{item}") }.join(", ")
+      escaped_name = CaidoUtils.escape_graphql_string(name)
+      allowlist_str = CaidoUtils.build_string_array(allowlist)
+      denylist_str = CaidoUtils.build_string_array(denylist)
       
       %Q(
         mutation CreateScope {
           createScope(input: { 
-            name: "#{name}", 
+            name: "#{escaped_name}", 
             allowlist: [#{allowlist_str}], 
             denylist: [#{denylist_str}] 
           }) {
@@ -203,22 +211,23 @@ module CaidoMutations
 
     # Update a scope
     def self.update(scope_id : String, name : String? = nil, allowlist : Array(String)? = nil, denylist : Array(String)? = nil)
+      escaped_id = CaidoUtils.escape_graphql_string(scope_id)
       updates = [] of String
-      updates << %Q(name: "#{name}") if name
+      updates << %Q(name: "#{CaidoUtils.escape_graphql_string(name.not_nil!)}") if name
       
       if allowlist
-        allowlist_str = allowlist.map { |item| %Q("#{item}") }.join(", ")
+        allowlist_str = CaidoUtils.build_string_array(allowlist)
         updates << %Q(allowlist: [#{allowlist_str}])
       end
       
       if denylist
-        denylist_str = denylist.map { |item| %Q("#{item}") }.join(", ")
+        denylist_str = CaidoUtils.build_string_array(denylist)
         updates << %Q(denylist: [#{denylist_str}])
       end
       
       %Q(
         mutation UpdateScope {
-          updateScope(id: "#{scope_id}", input: { #{updates.join(", ")} }) {
+          updateScope(id: "#{escaped_id}", input: { #{updates.join(", ")} }) {
             scope {
               id
               name
@@ -232,9 +241,10 @@ module CaidoMutations
 
     # Delete a scope
     def self.delete(scope_id : String)
+      escaped_id = CaidoUtils.escape_graphql_string(scope_id)
       %Q(
         mutation DeleteScope {
-          deleteScope(id: "#{scope_id}") {
+          deleteScope(id: "#{escaped_id}") {
             deletedId
           }
         }
@@ -243,9 +253,11 @@ module CaidoMutations
 
     # Rename a scope
     def self.rename(scope_id : String, name : String)
+      escaped_id = CaidoUtils.escape_graphql_string(scope_id)
+      escaped_name = CaidoUtils.escape_graphql_string(name)
       %Q(
         mutation RenameScope {
-          renameScope(id: "#{scope_id}", name: "#{name}") {
+          renameScope(id: "#{escaped_id}", name: "#{escaped_name}") {
             scope {
               id
               name
@@ -259,14 +271,17 @@ module CaidoMutations
   module Findings
     # Create a finding
     def self.create(request_id : String, title : String, description : String? = nil, reporter : String = "Manual")
-      desc_clause = description ? %Q(description: "#{description}") : ""
+      escaped_request_id = CaidoUtils.escape_graphql_string(request_id)
+      escaped_title = CaidoUtils.escape_graphql_string(title)
+      escaped_reporter = CaidoUtils.escape_graphql_string(reporter)
+      desc_clause = description ? %Q(description: "#{CaidoUtils.escape_graphql_string(description)}") : ""
       
       %Q(
         mutation CreateFinding {
-          createFinding(requestId: "#{request_id}", input: { 
-            title: "#{title}", 
+          createFinding(requestId: "#{escaped_request_id}", input: { 
+            title: "#{escaped_title}", 
             #{desc_clause}
-            reporter: "#{reporter}" 
+            reporter: "#{escaped_reporter}" 
           }) {
             finding {
               id
@@ -281,13 +296,14 @@ module CaidoMutations
 
     # Update a finding
     def self.update(finding_id : String, title : String? = nil, description : String? = nil)
+      escaped_id = CaidoUtils.escape_graphql_string(finding_id)
       updates = [] of String
-      updates << %Q(title: "#{title}") if title
-      updates << %Q(description: "#{description}") if description
+      updates << %Q(title: "#{CaidoUtils.escape_graphql_string(title.not_nil!)}") if title
+      updates << %Q(description: "#{CaidoUtils.escape_graphql_string(description.not_nil!)}") if description
       
       %Q(
         mutation UpdateFinding {
-          updateFinding(id: "#{finding_id}", input: { #{updates.join(", ")} }) {
+          updateFinding(id: "#{escaped_id}", input: { #{updates.join(", ")} }) {
             finding {
               id
               title
@@ -301,7 +317,7 @@ module CaidoMutations
     # Delete findings
     def self.delete(finding_ids : Array(String)? = nil)
       ids_clause = if finding_ids
-        ids_str = finding_ids.map { |id| %Q("#{id}") }.join(", ")
+        ids_str = CaidoUtils.build_string_array(finding_ids)
         %Q(input: { ids: [#{ids_str}] })
       else
         ""
@@ -318,7 +334,7 @@ module CaidoMutations
 
     # Hide findings
     def self.hide(finding_ids : Array(String))
-      ids_str = finding_ids.map { |id| %Q("#{id}") }.join(", ")
+      ids_str = CaidoUtils.build_string_array(finding_ids)
       
       %Q(
         mutation HideFindings {
@@ -334,7 +350,7 @@ module CaidoMutations
     # Export findings
     def self.export(finding_ids : Array(String)? = nil)
       ids_clause = if finding_ids
-        ids_str = finding_ids.map { |id| %Q("#{id}") }.join(", ")
+        ids_str = CaidoUtils.build_string_array(finding_ids)
         %Q(ids: [#{ids_str}])
       else
         ""
@@ -357,9 +373,10 @@ module CaidoMutations
   module Projects
     # Select a project (requires cloud)
     def self.select(project_id : String)
+      escaped_id = CaidoUtils.escape_graphql_string(project_id)
       %Q(
         mutation SelectProject {
-          selectProject(id: "#{project_id}") {
+          selectProject(id: "#{escaped_id}") {
             project {
               id
               name
@@ -372,11 +389,12 @@ module CaidoMutations
 
     # Create a project (requires cloud)
     def self.create(name : String, path : String? = nil)
-      path_clause = path ? %Q(path: "#{path}") : ""
+      escaped_name = CaidoUtils.escape_graphql_string(name)
+      path_clause = path ? %Q(path: "#{CaidoUtils.escape_graphql_string(path)}") : ""
       
       %Q(
         mutation CreateProject {
-          createProject(input: { name: "#{name}", #{path_clause} }) {
+          createProject(input: { name: "#{escaped_name}", #{path_clause} }) {
             project {
               id
               name
@@ -389,9 +407,10 @@ module CaidoMutations
 
     # Delete a project (requires cloud)
     def self.delete(project_id : String)
+      escaped_id = CaidoUtils.escape_graphql_string(project_id)
       %Q(
         mutation DeleteProject {
-          deleteProject(id: "#{project_id}") {
+          deleteProject(id: "#{escaped_id}") {
             deletedId
           }
         }
@@ -400,9 +419,11 @@ module CaidoMutations
 
     # Rename a project (requires cloud)
     def self.rename(project_id : String, name : String)
+      escaped_id = CaidoUtils.escape_graphql_string(project_id)
+      escaped_name = CaidoUtils.escape_graphql_string(name)
       %Q(
         mutation RenameProject {
-          renameProject(id: "#{project_id}", name: "#{name}") {
+          renameProject(id: "#{escaped_id}", name: "#{escaped_name}") {
             project {
               id
               name
@@ -416,12 +437,14 @@ module CaidoMutations
   module Workflows
     # Create a workflow (requires cloud)
     def self.create(name : String, kind : String, definition : String)
+      escaped_name = CaidoUtils.escape_graphql_string(name)
+      escaped_definition = CaidoUtils.escape_graphql_string(definition)
       %Q(
         mutation CreateWorkflow {
           createWorkflow(input: { 
-            name: "#{name}", 
+            name: "#{escaped_name}", 
             kind: #{kind}, 
-            definition: "#{definition}" 
+            definition: "#{escaped_definition}" 
           }) {
             workflow {
               id
@@ -436,13 +459,14 @@ module CaidoMutations
 
     # Update a workflow
     def self.update(workflow_id : String, name : String? = nil, definition : String? = nil)
+      escaped_id = CaidoUtils.escape_graphql_string(workflow_id)
       updates = [] of String
-      updates << %Q(name: "#{name}") if name
-      updates << %Q(definition: "#{definition}") if definition
+      updates << %Q(name: "#{CaidoUtils.escape_graphql_string(name.not_nil!)}") if name
+      updates << %Q(definition: "#{CaidoUtils.escape_graphql_string(definition.not_nil!)}") if definition
       
       %Q(
         mutation UpdateWorkflow {
-          updateWorkflow(id: "#{workflow_id}", input: { #{updates.join(", ")} }) {
+          updateWorkflow(id: "#{escaped_id}", input: { #{updates.join(", ")} }) {
             workflow {
               id
               name
@@ -455,9 +479,10 @@ module CaidoMutations
 
     # Delete a workflow
     def self.delete(workflow_id : String)
+      escaped_id = CaidoUtils.escape_graphql_string(workflow_id)
       %Q(
         mutation DeleteWorkflow {
-          deleteWorkflow(id: "#{workflow_id}") {
+          deleteWorkflow(id: "#{escaped_id}") {
             deletedId
           }
         }
@@ -466,9 +491,11 @@ module CaidoMutations
 
     # Rename a workflow
     def self.rename(workflow_id : String, name : String)
+      escaped_id = CaidoUtils.escape_graphql_string(workflow_id)
+      escaped_name = CaidoUtils.escape_graphql_string(name)
       %Q(
         mutation RenameWorkflow {
-          renameWorkflow(id: "#{workflow_id}", name: "#{name}") {
+          renameWorkflow(id: "#{escaped_id}", name: "#{escaped_name}") {
             workflow {
               id
               name
@@ -480,9 +507,10 @@ module CaidoMutations
 
     # Toggle workflow enabled state
     def self.toggle(workflow_id : String, enabled : Bool)
+      escaped_id = CaidoUtils.escape_graphql_string(workflow_id)
       %Q(
         mutation ToggleWorkflow {
-          toggleWorkflow(id: "#{workflow_id}", enabled: #{enabled}) {
+          toggleWorkflow(id: "#{escaped_id}", enabled: #{enabled}) {
             workflow {
               id
               enabled
@@ -494,9 +522,11 @@ module CaidoMutations
 
     # Run an active workflow
     def self.run_active(workflow_id : String, request_id : String)
+      escaped_workflow_id = CaidoUtils.escape_graphql_string(workflow_id)
+      escaped_request_id = CaidoUtils.escape_graphql_string(request_id)
       %Q(
         mutation RunActiveWorkflow {
-          runActiveWorkflow(id: "#{workflow_id}", input: { requestId: "#{request_id}" }) {
+          runActiveWorkflow(id: "#{escaped_workflow_id}", input: { requestId: "#{escaped_request_id}" }) {
             result {
               __typename
             }
@@ -509,13 +539,15 @@ module CaidoMutations
   module Replay
     # Create a replay session
     def self.create_session(name : String, source : String, collection_id : String? = nil)
-      collection_clause = collection_id ? %Q(collectionId: "#{collection_id}") : ""
+      escaped_name = CaidoUtils.escape_graphql_string(name)
+      escaped_source = CaidoUtils.escape_graphql_string(source)
+      collection_clause = collection_id ? %Q(collectionId: "#{CaidoUtils.escape_graphql_string(collection_id)}") : ""
       
       %Q(
         mutation CreateReplaySession {
           createReplaySession(input: { 
-            name: "#{name}", 
-            source: "#{source}", 
+            name: "#{escaped_name}", 
+            source: "#{escaped_source}", 
             #{collection_clause} 
           }) {
             session {
@@ -529,9 +561,10 @@ module CaidoMutations
 
     # Create a replay session collection
     def self.create_collection(name : String)
+      escaped_name = CaidoUtils.escape_graphql_string(name)
       %Q(
         mutation CreateReplaySessionCollection {
-          createReplaySessionCollection(input: { name: "#{name}" }) {
+          createReplaySessionCollection(input: { name: "#{escaped_name}" }) {
             collection {
               id
               name
@@ -543,7 +576,7 @@ module CaidoMutations
 
     # Delete replay sessions
     def self.delete_sessions(session_ids : Array(String))
-      ids_str = session_ids.map { |id| %Q("#{id}") }.join(", ")
+      ids_str = CaidoUtils.build_string_array(session_ids)
       
       %Q(
         mutation DeleteReplaySessions {
@@ -556,9 +589,10 @@ module CaidoMutations
 
     # Delete a replay session collection
     def self.delete_collection(collection_id : String)
+      escaped_id = CaidoUtils.escape_graphql_string(collection_id)
       %Q(
         mutation DeleteReplaySessionCollection {
-          deleteReplaySessionCollection(id: "#{collection_id}") {
+          deleteReplaySessionCollection(id: "#{escaped_id}") {
             deletedId
           }
         }
@@ -567,9 +601,11 @@ module CaidoMutations
 
     # Rename a replay session
     def self.rename_session(session_id : String, name : String)
+      escaped_id = CaidoUtils.escape_graphql_string(session_id)
+      escaped_name = CaidoUtils.escape_graphql_string(name)
       %Q(
         mutation RenameReplaySession {
-          renameReplaySession(id: "#{session_id}", name: "#{name}") {
+          renameReplaySession(id: "#{escaped_id}", name: "#{escaped_name}") {
             session {
               id
               name
@@ -581,9 +617,11 @@ module CaidoMutations
 
     # Rename a replay session collection
     def self.rename_collection(collection_id : String, name : String)
+      escaped_id = CaidoUtils.escape_graphql_string(collection_id)
+      escaped_name = CaidoUtils.escape_graphql_string(name)
       %Q(
         mutation RenameReplaySessionCollection {
-          renameReplaySessionCollection(id: "#{collection_id}", name: "#{name}") {
+          renameReplaySessionCollection(id: "#{escaped_id}", name: "#{escaped_name}") {
             collection {
               id
               name
@@ -595,9 +633,11 @@ module CaidoMutations
 
     # Move a replay session to a collection
     def self.move_session(session_id : String, collection_id : String)
+      escaped_session_id = CaidoUtils.escape_graphql_string(session_id)
+      escaped_collection_id = CaidoUtils.escape_graphql_string(collection_id)
       %Q(
         mutation MoveReplaySession {
-          moveReplaySession(id: "#{session_id}", collectionId: "#{collection_id}") {
+          moveReplaySession(id: "#{escaped_session_id}", collectionId: "#{escaped_collection_id}") {
             session {
               id
               collection {
@@ -612,9 +652,10 @@ module CaidoMutations
 
     # Start a replay task (requires cloud)
     def self.start_task(session_id : String)
+      escaped_id = CaidoUtils.escape_graphql_string(session_id)
       %Q(
         mutation StartReplayTask {
-          startReplayTask(sessionId: "#{session_id}", input: {}) {
+          startReplayTask(sessionId: "#{escaped_id}", input: {}) {
             task {
               id
             }
@@ -627,12 +668,14 @@ module CaidoMutations
   module Automate
     # Create an automate session
     def self.create_session(name : String, host : String, port : Int32, is_tls : Bool = false)
+      escaped_name = CaidoUtils.escape_graphql_string(name)
+      escaped_host = CaidoUtils.escape_graphql_string(host)
       %Q(
         mutation CreateAutomateSession {
           createAutomateSession(input: { 
-            name: "#{name}", 
+            name: "#{escaped_name}", 
             connection: { 
-              host: "#{host}", 
+              host: "#{escaped_host}", 
               port: #{port}, 
               isTls: #{is_tls} 
             } 
@@ -653,9 +696,10 @@ module CaidoMutations
 
     # Delete an automate session
     def self.delete_session(session_id : String)
+      escaped_id = CaidoUtils.escape_graphql_string(session_id)
       %Q(
         mutation DeleteAutomateSession {
-          deleteAutomateSession(id: "#{session_id}") {
+          deleteAutomateSession(id: "#{escaped_id}") {
             deletedId
           }
         }
@@ -664,9 +708,11 @@ module CaidoMutations
 
     # Rename an automate session
     def self.rename_session(session_id : String, name : String)
+      escaped_id = CaidoUtils.escape_graphql_string(session_id)
+      escaped_name = CaidoUtils.escape_graphql_string(name)
       %Q(
         mutation RenameAutomateSession {
-          renameAutomateSession(id: "#{session_id}", name: "#{name}") {
+          renameAutomateSession(id: "#{escaped_id}", name: "#{escaped_name}") {
             session {
               id
               name
@@ -678,9 +724,10 @@ module CaidoMutations
 
     # Duplicate an automate session
     def self.duplicate_session(session_id : String)
+      escaped_id = CaidoUtils.escape_graphql_string(session_id)
       %Q(
         mutation DuplicateAutomateSession {
-          duplicateAutomateSession(id: "#{session_id}") {
+          duplicateAutomateSession(id: "#{escaped_id}") {
             session {
               id
               name
@@ -692,9 +739,10 @@ module CaidoMutations
 
     # Start an automate task
     def self.start_task(session_id : String)
+      escaped_id = CaidoUtils.escape_graphql_string(session_id)
       %Q(
         mutation StartAutomateTask {
-          startAutomateTask(automateSessionId: "#{session_id}") {
+          startAutomateTask(automateSessionId: "#{escaped_id}") {
             task {
               id
             }
@@ -705,9 +753,10 @@ module CaidoMutations
 
     # Pause an automate task
     def self.pause_task(task_id : String)
+      escaped_id = CaidoUtils.escape_graphql_string(task_id)
       %Q(
         mutation PauseAutomateTask {
-          pauseAutomateTask(id: "#{task_id}") {
+          pauseAutomateTask(id: "#{escaped_id}") {
             task {
               id
               paused
@@ -719,9 +768,10 @@ module CaidoMutations
 
     # Resume an automate task
     def self.resume_task(task_id : String)
+      escaped_id = CaidoUtils.escape_graphql_string(task_id)
       %Q(
         mutation ResumeAutomateTask {
-          resumeAutomateTask(id: "#{task_id}") {
+          resumeAutomateTask(id: "#{escaped_id}") {
             task {
               id
               paused
@@ -733,9 +783,10 @@ module CaidoMutations
 
     # Cancel an automate task
     def self.cancel_task(task_id : String)
+      escaped_id = CaidoUtils.escape_graphql_string(task_id)
       %Q(
         mutation CancelAutomateTask {
-          cancelAutomateTask(id: "#{task_id}") {
+          cancelAutomateTask(id: "#{escaped_id}") {
             success
           }
         }
@@ -744,7 +795,7 @@ module CaidoMutations
 
     # Delete automate entries
     def self.delete_entries(entry_ids : Array(String))
-      ids_str = entry_ids.map { |id| %Q("#{id}") }.join(", ")
+      ids_str = CaidoUtils.build_string_array(entry_ids)
       
       %Q(
         mutation DeleteAutomateEntries {
@@ -759,14 +810,17 @@ module CaidoMutations
   module Tamper
     # Create a tamper rule
     def self.create_rule(name : String, condition : String, strategy : String, collection_id : String? = nil)
-      collection_clause = collection_id ? %Q(collectionId: "#{collection_id}") : ""
+      escaped_name = CaidoUtils.escape_graphql_string(name)
+      escaped_condition = CaidoUtils.escape_graphql_string(condition)
+      escaped_strategy = CaidoUtils.escape_graphql_string(strategy)
+      collection_clause = collection_id ? %Q(collectionId: "#{CaidoUtils.escape_graphql_string(collection_id)}") : ""
       
       %Q(
         mutation CreateTamperRule {
           createTamperRule(input: { 
-            name: "#{name}", 
-            condition: "#{condition}", 
-            strategy: "#{strategy}", 
+            name: "#{escaped_name}", 
+            condition: "#{escaped_condition}", 
+            strategy: "#{escaped_strategy}", 
             #{collection_clause} 
           }) {
             rule {
@@ -783,9 +837,10 @@ module CaidoMutations
 
     # Create a tamper rule collection
     def self.create_collection(name : String)
+      escaped_name = CaidoUtils.escape_graphql_string(name)
       %Q(
         mutation CreateTamperRuleCollection {
-          createTamperRuleCollection(input: { name: "#{name}" }) {
+          createTamperRuleCollection(input: { name: "#{escaped_name}" }) {
             collection {
               id
               name
@@ -797,14 +852,15 @@ module CaidoMutations
 
     # Update a tamper rule
     def self.update_rule(rule_id : String, name : String? = nil, condition : String? = nil, strategy : String? = nil)
+      escaped_id = CaidoUtils.escape_graphql_string(rule_id)
       updates = [] of String
-      updates << %Q(name: "#{name}") if name
-      updates << %Q(condition: "#{condition}") if condition
-      updates << %Q(strategy: "#{strategy}") if strategy
+      updates << %Q(name: "#{CaidoUtils.escape_graphql_string(name.not_nil!)}") if name
+      updates << %Q(condition: "#{CaidoUtils.escape_graphql_string(condition.not_nil!)}") if condition
+      updates << %Q(strategy: "#{CaidoUtils.escape_graphql_string(strategy.not_nil!)}") if strategy
       
       %Q(
         mutation UpdateTamperRule {
-          updateTamperRule(id: "#{rule_id}", input: { #{updates.join(", ")} }) {
+          updateTamperRule(id: "#{escaped_id}", input: { #{updates.join(", ")} }) {
             rule {
               id
               name
@@ -818,9 +874,10 @@ module CaidoMutations
 
     # Delete a tamper rule
     def self.delete_rule(rule_id : String)
+      escaped_id = CaidoUtils.escape_graphql_string(rule_id)
       %Q(
         mutation DeleteTamperRule {
-          deleteTamperRule(id: "#{rule_id}") {
+          deleteTamperRule(id: "#{escaped_id}") {
             deletedId
           }
         }
@@ -829,9 +886,10 @@ module CaidoMutations
 
     # Delete a tamper rule collection
     def self.delete_collection(collection_id : String)
+      escaped_id = CaidoUtils.escape_graphql_string(collection_id)
       %Q(
         mutation DeleteTamperRuleCollection {
-          deleteTamperRuleCollection(id: "#{collection_id}") {
+          deleteTamperRuleCollection(id: "#{escaped_id}") {
             deletedId
           }
         }
@@ -840,9 +898,10 @@ module CaidoMutations
 
     # Toggle tamper rule enabled state
     def self.toggle_rule(rule_id : String, enabled : Bool)
+      escaped_id = CaidoUtils.escape_graphql_string(rule_id)
       %Q(
         mutation ToggleTamperRule {
-          toggleTamperRule(id: "#{rule_id}", enabled: #{enabled}) {
+          toggleTamperRule(id: "#{escaped_id}", enabled: #{enabled}) {
             rule {
               id
               enabled
@@ -854,9 +913,11 @@ module CaidoMutations
 
     # Rename a tamper rule
     def self.rename_rule(rule_id : String, name : String)
+      escaped_id = CaidoUtils.escape_graphql_string(rule_id)
+      escaped_name = CaidoUtils.escape_graphql_string(name)
       %Q(
         mutation RenameTamperRule {
-          renameTamperRule(id: "#{rule_id}", name: "#{name}") {
+          renameTamperRule(id: "#{escaped_id}", name: "#{escaped_name}") {
             rule {
               id
               name
@@ -868,9 +929,11 @@ module CaidoMutations
 
     # Rename a tamper rule collection
     def self.rename_collection(collection_id : String, name : String)
+      escaped_id = CaidoUtils.escape_graphql_string(collection_id)
+      escaped_name = CaidoUtils.escape_graphql_string(name)
       %Q(
         mutation RenameTamperRuleCollection {
-          renameTamperRuleCollection(id: "#{collection_id}", name: "#{name}") {
+          renameTamperRuleCollection(id: "#{escaped_id}", name: "#{escaped_name}") {
             collection {
               id
               name
@@ -882,9 +945,11 @@ module CaidoMutations
 
     # Move a tamper rule to a collection
     def self.move_rule(rule_id : String, collection_id : String)
+      escaped_rule_id = CaidoUtils.escape_graphql_string(rule_id)
+      escaped_collection_id = CaidoUtils.escape_graphql_string(collection_id)
       %Q(
         mutation MoveTamperRule {
-          moveTamperRule(id: "#{rule_id}", collectionId: "#{collection_id}") {
+          moveTamperRule(id: "#{escaped_rule_id}", collectionId: "#{escaped_collection_id}") {
             rule {
               id
               collection {
@@ -901,13 +966,16 @@ module CaidoMutations
   module DNS
     # Create a DNS rewrite
     def self.create_rewrite(name : String, strategy : String, source : String, destination : String)
+      escaped_name = CaidoUtils.escape_graphql_string(name)
+      escaped_source = CaidoUtils.escape_graphql_string(source)
+      escaped_destination = CaidoUtils.escape_graphql_string(destination)
       %Q(
         mutation CreateDNSRewrite {
           createDnsRewrite(input: { 
-            name: "#{name}", 
+            name: "#{escaped_name}", 
             strategy: #{strategy}, 
-            source: "#{source}", 
-            destination: "#{destination}" 
+            source: "#{escaped_source}", 
+            destination: "#{escaped_destination}" 
           }) {
             rewrite {
               id
@@ -924,15 +992,16 @@ module CaidoMutations
 
     # Update a DNS rewrite
     def self.update_rewrite(rewrite_id : String, name : String? = nil, strategy : String? = nil, source : String? = nil, destination : String? = nil)
+      escaped_id = CaidoUtils.escape_graphql_string(rewrite_id)
       updates = [] of String
-      updates << %Q(name: "#{name}") if name
+      updates << %Q(name: "#{CaidoUtils.escape_graphql_string(name.not_nil!)}") if name
       updates << %Q(strategy: #{strategy}) if strategy
-      updates << %Q(source: "#{source}") if source
-      updates << %Q(destination: "#{destination}") if destination
+      updates << %Q(source: "#{CaidoUtils.escape_graphql_string(source.not_nil!)}") if source
+      updates << %Q(destination: "#{CaidoUtils.escape_graphql_string(destination.not_nil!)}") if destination
       
       %Q(
         mutation UpdateDNSRewrite {
-          updateDnsRewrite(id: "#{rewrite_id}", input: { #{updates.join(", ")} }) {
+          updateDnsRewrite(id: "#{escaped_id}", input: { #{updates.join(", ")} }) {
             rewrite {
               id
               name
@@ -947,9 +1016,10 @@ module CaidoMutations
 
     # Delete a DNS rewrite
     def self.delete_rewrite(rewrite_id : String)
+      escaped_id = CaidoUtils.escape_graphql_string(rewrite_id)
       %Q(
         mutation DeleteDNSRewrite {
-          deleteDnsRewrite(id: "#{rewrite_id}") {
+          deleteDnsRewrite(id: "#{escaped_id}") {
             deletedId
           }
         }
@@ -958,9 +1028,10 @@ module CaidoMutations
 
     # Toggle DNS rewrite enabled state
     def self.toggle_rewrite(rewrite_id : String, enabled : Bool)
+      escaped_id = CaidoUtils.escape_graphql_string(rewrite_id)
       %Q(
         mutation ToggleDNSRewrite {
-          toggleDnsRewrite(id: "#{rewrite_id}", enabled: #{enabled}) {
+          toggleDnsRewrite(id: "#{escaped_id}", enabled: #{enabled}) {
             rewrite {
               id
               enabled
@@ -972,12 +1043,14 @@ module CaidoMutations
 
     # Create a DNS upstream
     def self.create_upstream(name : String, kind : String, address : String)
+      escaped_name = CaidoUtils.escape_graphql_string(name)
+      escaped_address = CaidoUtils.escape_graphql_string(address)
       %Q(
         mutation CreateDNSUpstream {
           createDnsUpstream(input: { 
-            name: "#{name}", 
+            name: "#{escaped_name}", 
             kind: #{kind}, 
-            address: "#{address}" 
+            address: "#{escaped_address}" 
           }) {
             upstream {
               id
@@ -992,14 +1065,15 @@ module CaidoMutations
 
     # Update a DNS upstream
     def self.update_upstream(upstream_id : String, name : String? = nil, kind : String? = nil, address : String? = nil)
+      escaped_id = CaidoUtils.escape_graphql_string(upstream_id)
       updates = [] of String
-      updates << %Q(name: "#{name}") if name
+      updates << %Q(name: "#{CaidoUtils.escape_graphql_string(name.not_nil!)}") if name
       updates << %Q(kind: #{kind}) if kind
-      updates << %Q(address: "#{address}") if address
+      updates << %Q(address: "#{CaidoUtils.escape_graphql_string(address.not_nil!)}") if address
       
       %Q(
         mutation UpdateDNSUpstream {
-          updateDnsUpstream(id: "#{upstream_id}", input: { #{updates.join(", ")} }) {
+          updateDnsUpstream(id: "#{escaped_id}", input: { #{updates.join(", ")} }) {
             upstream {
               id
               name
@@ -1013,9 +1087,10 @@ module CaidoMutations
 
     # Delete a DNS upstream
     def self.delete_upstream(upstream_id : String)
+      escaped_id = CaidoUtils.escape_graphql_string(upstream_id)
       %Q(
         mutation DeleteDNSUpstream {
-          deleteDnsUpstream(id: "#{upstream_id}") {
+          deleteDnsUpstream(id: "#{escaped_id}") {
             deletedId
           }
         }
@@ -1026,14 +1101,15 @@ module CaidoMutations
   module UpstreamProxies
     # Create an HTTP upstream proxy
     def self.create_http(kind : String, address : String, allowlist : Array(String) = [] of String, denylist : Array(String) = [] of String)
-      allowlist_str = allowlist.map { |item| %Q("#{item}") }.join(", ")
-      denylist_str = denylist.map { |item| %Q("#{item}") }.join(", ")
+      escaped_address = CaidoUtils.escape_graphql_string(address)
+      allowlist_str = CaidoUtils.build_string_array(allowlist)
+      denylist_str = CaidoUtils.build_string_array(denylist)
       
       %Q(
         mutation CreateUpstreamProxyHttp {
           createUpstreamProxyHttp(input: { 
             kind: #{kind}, 
-            address: "#{address}", 
+            address: "#{escaped_address}", 
             allowlist: [#{allowlist_str}], 
             denylist: [#{denylist_str}] 
           }) {
@@ -1050,14 +1126,15 @@ module CaidoMutations
 
     # Create a SOCKS upstream proxy
     def self.create_socks(kind : String, address : String, allowlist : Array(String) = [] of String, denylist : Array(String) = [] of String)
-      allowlist_str = allowlist.map { |item| %Q("#{item}") }.join(", ")
-      denylist_str = denylist.map { |item| %Q("#{item}") }.join(", ")
+      escaped_address = CaidoUtils.escape_graphql_string(address)
+      allowlist_str = CaidoUtils.build_string_array(allowlist)
+      denylist_str = CaidoUtils.build_string_array(denylist)
       
       %Q(
         mutation CreateUpstreamProxySocks {
           createUpstreamProxySocks(input: { 
             kind: #{kind}, 
-            address: "#{address}", 
+            address: "#{escaped_address}", 
             allowlist: [#{allowlist_str}], 
             denylist: [#{denylist_str}] 
           }) {
@@ -1074,9 +1151,10 @@ module CaidoMutations
 
     # Delete an HTTP upstream proxy
     def self.delete_http(proxy_id : String)
+      escaped_id = CaidoUtils.escape_graphql_string(proxy_id)
       %Q(
         mutation DeleteUpstreamProxyHttp {
-          deleteUpstreamProxyHttp(id: "#{proxy_id}") {
+          deleteUpstreamProxyHttp(id: "#{escaped_id}") {
             deletedId
           }
         }
@@ -1085,9 +1163,10 @@ module CaidoMutations
 
     # Delete a SOCKS upstream proxy
     def self.delete_socks(proxy_id : String)
+      escaped_id = CaidoUtils.escape_graphql_string(proxy_id)
       %Q(
         mutation DeleteUpstreamProxySocks {
-          deleteUpstreamProxySocks(id: "#{proxy_id}") {
+          deleteUpstreamProxySocks(id: "#{escaped_id}") {
             deletedId
           }
         }
@@ -1096,9 +1175,10 @@ module CaidoMutations
 
     # Toggle HTTP upstream proxy enabled state
     def self.toggle_http(proxy_id : String, enabled : Bool)
+      escaped_id = CaidoUtils.escape_graphql_string(proxy_id)
       %Q(
         mutation ToggleUpstreamProxyHttp {
-          toggleUpstreamProxyHttp(id: "#{proxy_id}", enabled: #{enabled}) {
+          toggleUpstreamProxyHttp(id: "#{escaped_id}", enabled: #{enabled}) {
             proxy {
               id
               enabled
@@ -1110,9 +1190,10 @@ module CaidoMutations
 
     # Toggle SOCKS upstream proxy enabled state
     def self.toggle_socks(proxy_id : String, enabled : Bool)
+      escaped_id = CaidoUtils.escape_graphql_string(proxy_id)
       %Q(
         mutation ToggleUpstreamProxySocks {
-          toggleUpstreamProxySocks(id: "#{proxy_id}", enabled: #{enabled}) {
+          toggleUpstreamProxySocks(id: "#{escaped_id}", enabled: #{enabled}) {
             proxy {
               id
               enabled
@@ -1126,11 +1207,12 @@ module CaidoMutations
   module Assistant
     # Create an assistant session (requires cloud)
     def self.create_session(model_id : String, name : String? = nil)
-      name_clause = name ? %Q(name: "#{name}") : ""
+      escaped_model_id = CaidoUtils.escape_graphql_string(model_id)
+      name_clause = name ? %Q(name: "#{CaidoUtils.escape_graphql_string(name)}") : ""
       
       %Q(
         mutation CreateAssistantSession {
-          createAssistantSession(input: { modelId: "#{model_id}", #{name_clause} }) {
+          createAssistantSession(input: { modelId: "#{escaped_model_id}", #{name_clause} }) {
             session {
               id
               name
@@ -1143,9 +1225,10 @@ module CaidoMutations
 
     # Delete an assistant session
     def self.delete_session(session_id : String)
+      escaped_id = CaidoUtils.escape_graphql_string(session_id)
       %Q(
         mutation DeleteAssistantSession {
-          deleteAssistantSession(id: "#{session_id}") {
+          deleteAssistantSession(id: "#{escaped_id}") {
             deletedId
           }
         }
@@ -1154,9 +1237,11 @@ module CaidoMutations
 
     # Rename an assistant session
     def self.rename_session(session_id : String, name : String)
+      escaped_id = CaidoUtils.escape_graphql_string(session_id)
+      escaped_name = CaidoUtils.escape_graphql_string(name)
       %Q(
         mutation RenameAssistantSession {
-          renameAssistantSession(id: "#{session_id}", name: "#{name}") {
+          renameAssistantSession(id: "#{escaped_id}", name: "#{escaped_name}") {
             session {
               id
               name
@@ -1168,9 +1253,11 @@ module CaidoMutations
 
     # Send a message to the assistant (requires cloud)
     def self.send_message(session_id : String, message : String)
+      escaped_id = CaidoUtils.escape_graphql_string(session_id)
+      escaped_message = CaidoUtils.escape_graphql_string(message)
       %Q(
         mutation SendAssistantMessage {
-          sendAssistantMessage(sessionId: "#{session_id}", message: "#{message}") {
+          sendAssistantMessage(sessionId: "#{escaped_id}", message: "#{escaped_message}") {
             message {
               id
               role
@@ -1221,9 +1308,10 @@ module CaidoMutations
   module Tasks
     # Cancel a task
     def self.cancel(task_id : String)
+      escaped_id = CaidoUtils.escape_graphql_string(task_id)
       %Q(
         mutation CancelTask {
-          cancelTask(id: "#{task_id}") {
+          cancelTask(id: "#{escaped_id}") {
             success
           }
         }

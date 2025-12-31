@@ -1,3 +1,4 @@
+require "./client/utils"
 require "./client/graphql"
 require "./client/queries"
 require "./client/mutations"
