@@ -9,12 +9,14 @@ module CaidoUtils
          .gsub("\n", "\\n")
          .gsub("\r", "\\r")
          .gsub("\t", "\\t")
+         .gsub("\b", "\\b")
+         .gsub("\f", "\\f")
   end
 
   # Helper to build pagination clauses
   def self.build_pagination(after : String? = nil, first : Int32? = nil) : String
     clauses = [] of String
-    clauses << %Q(after: "#{escape_graphql_string(after)}") if after
+    clauses << %Q(after: "#{escape_graphql_string(after.not_nil!)}") if after
     clauses << "first: #{first}" if first
     clauses.join(" ")
   end

@@ -28,6 +28,14 @@ describe CaidoUtils do
       CaidoUtils.escape_graphql_string("test\tvalue").should eq("test\\tvalue")
     end
 
+    it "escapes backspace" do
+      CaidoUtils.escape_graphql_string("test\bvalue").should eq("test\\bvalue")
+    end
+
+    it "escapes form feed" do
+      CaidoUtils.escape_graphql_string("test\fvalue").should eq("test\\fvalue")
+    end
+
     it "handles multiple special characters" do
       input = %q(test"with\nnewline)
       expected = %q(test\"with\\nnewline)
