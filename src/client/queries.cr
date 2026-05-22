@@ -5,47 +5,47 @@ module CaidoQueries
 
   # Reusable GraphQL field fragments
   METADATA_FIELDS = <<-GQL
-              metadata {
-                id
-                color
-              }
-  GQL
+    metadata {
+      id
+      color
+    }
+    GQL
 
   REQUEST_FIELDS = <<-GQL
-              id
-              host
-              port
-              path
-              query
-              method
-              edited
-              isTls
-              length
-              alteration
-              #{METADATA_FIELDS}
-              fileExtension
-              source
-              createdAt
-  GQL
+    id
+    host
+    port
+    path
+    query
+    method
+    edited
+    isTls
+    length
+    alteration
+    #{METADATA_FIELDS}
+    fileExtension
+    source
+    createdAt
+    GQL
 
   RESPONSE_FIELDS = <<-GQL
-              id
-              statusCode
-              roundtripTime
-              length
-              createdAt
-              alteration
-              edited
-  GQL
+    id
+    statusCode
+    roundtripTime
+    length
+    createdAt
+    alteration
+    edited
+    GQL
 
   PAGE_INFO_FIELDS = <<-GQL
-            pageInfo {
-              hasNextPage
-              hasPreviousPage
-              startCursor
-              endCursor
-            }
-  GQL
+    pageInfo {
+      hasNextPage
+      hasPreviousPage
+      startCursor
+      endCursor
+    }
+    GQL
 
   module Requests
     # Get all requests with pagination
@@ -118,13 +118,13 @@ module CaidoQueries
 
   module Sitemap
     SITEMAP_ENTRY_FIELDS = <<-GQL
-              id
-              label
-              kind
-              parentId
-              hasDescendants
-              #{METADATA_FIELDS}
-    GQL
+      id
+      label
+      kind
+      parentId
+      hasDescendants
+      #{METADATA_FIELDS}
+      GQL
 
     # Get root sitemap entries
     def self.root_entries(scope_id : String? = nil)

@@ -1,13 +1,24 @@
 name: caido
 version: 0.1.0
+description: |
+  Unofficial Crystal Shard for Caido, a security testing platform.
+  Provides a GraphQL client with safe query builders for Caido's API.
+repository: https://github.com/hahwul/caido.cr
+homepage: https://github.com/hahwul/caido.cr
+documentation: https://github.com/hahwul/caido.cr#readme
 
 authors:
   - hahwul <hahwul@gmail.com>
 
-crystal: 1.8.1
+crystal: ">= 1.8.1"
+
+license: MIT
 
 dependencies:
   crystal-gql:
     github: itsezc/crystal-gql
 
-license: MIT
+development_dependencies:
+  ameba:
+    github: crystal-ameba/ameba
+    branch: master

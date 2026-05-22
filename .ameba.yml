@@ -1,0 +1,12 @@
+Metrics/CyclomaticComplexity:
+  Excluded:
+    - example/**
+    - spec/**
+
+Lint/UselessAssign:
+  Excluded:
+    - spec/**
+
+# GraphQL query builders intentionally use %Q() to embed pre-escaped values.
+Style/MultilineStringLiteral:
+  Enabled: false
