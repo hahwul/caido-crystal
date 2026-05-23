@@ -6,6 +6,60 @@ describe Caido do
   end
 end
 
+describe CaidoClient do
+  describe "#initialize" do
+    it "constructs without a token" do
+      client = CaidoClient.new("http://example.invalid/graphql")
+      client.should_not be_nil
+    end
+
+    it "constructs with an explicit bearer token" do
+      client = CaidoClient.new("http://example.invalid/graphql", "test-token")
+      client.should_not be_nil
+    end
+
+    it "constructs with custom headers hash" do
+      headers = {"X-Caido-Trace" => "abc", "Authorization" => "Bearer xyz"}
+      client = CaidoClient.new("http://example.invalid/graphql", headers)
+      client.should_not be_nil
+    end
+
+    it "picks up CAIDO_AUTH_TOKEN from environment" do
+      previous = ENV["CAIDO_AUTH_TOKEN"]?
+      begin
+        ENV["CAIDO_AUTH_TOKEN"] = "env-token"
+        client = CaidoClient.new("http://example.invalid/graphql")
+        client.should_not be_nil
+      ensure
+        if previous
+          ENV["CAIDO_AUTH_TOKEN"] = previous
+        else
+          ENV.delete("CAIDO_AUTH_TOKEN")
+        end
+      end
+    end
+  end
+
+  describe "#query" do
+    it "wraps connection failures in ConnectionError" do
+      # Port 1 is reserved and unreachable on all platforms — connect
+      # fails immediately, which exercises the rescue branch in #query.
+      client = CaidoClient.new("http://127.0.0.1:1/graphql")
+      expect_raises(CaidoClient::ConnectionError, /Failed to connect/) do
+        client.query("{ __typename }")
+      end
+    end
+  end
+
+  describe CaidoClient::GraphQLError do
+    it "joins multiple error messages into the exception message" do
+      err = CaidoClient::GraphQLError.new(["bad field", "unauthorized"])
+      err.errors.should eq(["bad field", "unauthorized"])
+      err.message.should eq("bad field; unauthorized")
+    end
+  end
+end
+
 describe CaidoUtils do
   describe ".escape_graphql_string" do
     it "escapes backslashes" do
