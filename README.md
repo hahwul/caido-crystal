@@ -59,7 +59,7 @@ client = CaidoClient.new "http://localhost:8080/graphql", headers
 
 ### Examples
 
-See the `example/` directory for usage examples:
+See the `examples/` directory for usage examples:
 - `get_sitemap.cr` - Basic example
 - `enhanced_examples.cr` - Comprehensive examples using helper methods
 

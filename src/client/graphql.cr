@@ -21,13 +21,16 @@ class CaidoClient
 
     auth_token = token || ENV["CAIDO_AUTH_TOKEN"]?
     if auth_token
-      @instance.headers["Authorization"] = "Bearer #{auth_token}"
+      @instance.add_header("Authorization", "Bearer #{auth_token}")
     end
   end
 
   # Initialize with custom headers
   def initialize(@endpoint : String, headers : Hash(String, String))
-    @instance = GraphQLClient.new endpoint, headers
+    @instance = GraphQLClient.new endpoint
+    headers.each do |key, value|
+      @instance.add_header(key, value)
+    end
   end
 
   def query(query : String)
