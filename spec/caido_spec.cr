@@ -1,4 +1,23 @@
 require "./spec_helper"
+require "http/server"
+
+# Spins up a localhost GraphQL stub that replies with a caller-supplied
+# (status, body) pair, then drives a real `CaidoClient` against it. Exercises
+# the full transport: HTTP status checking, JSON parsing, and the
+# data/errors decoding in `CaidoClient::Transport`.
+private def with_graphql_server(status : Int32, body : String, & : String ->)
+  server = HTTP::Server.new do |context|
+    context.response.status_code = status
+    context.response.print body
+  end
+  address = server.bind_tcp("127.0.0.1", 0)
+  spawn { server.listen }
+  begin
+    yield "http://#{address.address}:#{address.port}/graphql"
+  ensure
+    server.close
+  end
+end
 
 describe Caido do
   it "has a version" do
@@ -1012,6 +1031,73 @@ describe "CaidoUtils GraphQL injection guards" do
       # Quote and brace are escaped, so the embedded payload stays inside
       # the apiKey string literal instead of injecting sibling fields.
       query.should contain(%q(apiKey: "a\" }, attack: \"x"))
+    end
+  end
+end
+
+describe "CaidoClient#query error handling (transport)" do
+  it "returns the decoded {data, errors, loading} tuple on success" do
+    body = %({"data":{"viewer":{"id":"42"}}})
+    with_graphql_server(200, body) do |endpoint|
+      client = CaidoClient.new(endpoint)
+      data, errors, _loading = client.query("{ viewer { id } }")
+      errors.should be_nil
+      data.should_not be_nil
+      data.as(JSON::Any)["viewer"]["id"].as_s.should eq("42")
+    end
+  end
+
+  it "raises GraphQLError on an errors-only response (plural key, no data)" do
+    # GraphQL puts failures under the PLURAL `errors` key and may omit
+    # `data` entirely. The old code read `error` (singular) and bracket-
+    # indexed `data`, so this body used to be silently swallowed AND crash
+    # with KeyError. It must now surface as a GraphQLError.
+    body = %({"errors":[{"message":"Field 'bogus' doesn't exist"}]})
+    with_graphql_server(200, body) do |endpoint|
+      client = CaidoClient.new(endpoint)
+      expect_raises(CaidoClient::GraphQLError, /Field 'bogus' doesn't exist/) do
+        client.query("{ bogus }")
+      end
+    end
+  end
+
+  it "raises GraphQLError on a partial data + errors response" do
+    # A partial response carries both `data` and `errors`. The errors must
+    # win — a half-populated result is still a failure the caller must see.
+    body = %({"data":{"viewer":null},"errors":[{"message":"unauthorized"}]})
+    with_graphql_server(200, body) do |endpoint|
+      client = CaidoClient.new(endpoint)
+      begin
+        client.query("{ viewer { id } }")
+        fail "should have raised GraphQLError"
+      rescue ex : CaidoClient::GraphQLError
+        ex.errors.should eq(["unauthorized"])
+      end
+    end
+  end
+
+  it "raises ConnectionError (not JSON::ParseException) on a 500 + HTML body" do
+    # A 401/403/500 typically returns an HTML or empty body. The old code
+    # fed that straight into JSON.parse, raising a bare JSON::ParseException
+    # indistinguishable from a real malformed-JSON bug. It must now be a
+    # ConnectionError carrying the HTTP status.
+    body = "<html><body>500 Internal Server Error</body></html>"
+    with_graphql_server(500, body) do |endpoint|
+      client = CaidoClient.new(endpoint)
+      expect_raises(CaidoClient::ConnectionError, /500/) do
+        client.query("{ viewer { id } }")
+      end
+    end
+  end
+
+  it "raises ConnectionError on a 200 with a non-JSON body" do
+    # Even a 200 can carry junk (a misconfigured proxy, an auth redirect
+    # page). That should be a ConnectionError, never a raw parse exception.
+    with_graphql_server(200, "not json at all") do |endpoint|
+      client = CaidoClient.new(endpoint)
+      expect_raises(CaidoClient::ConnectionError) do
+        client.query("{ viewer { id } }")
+      end
     end
   end
 end

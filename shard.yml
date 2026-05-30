@@ -14,10 +14,6 @@ crystal: ">= 1.8.1"
 
 license: MIT
 
-dependencies:
-  crystal-gql:
-    github: itsezc/crystal-gql
-
 development_dependencies:
   ameba:
     github: crystal-ameba/ameba
