@@ -1100,4 +1100,37 @@ describe "CaidoClient#query error handling (transport)" do
       end
     end
   end
+
+  it "raises GraphQLError (not TypeCastError) when error message is a number" do
+    # The GraphQL spec says `message` is a string, but a non-conforming
+    # server can send a number. The old code did `msg.as_s`, crashing with
+    # a raw TypeCastError. It must now surface as a GraphQLError carrying
+    # the stringified value.
+    body = %({"errors":[{"message":123}]})
+    with_graphql_server(200, body) do |endpoint|
+      client = CaidoClient.new(endpoint)
+      begin
+        client.query("{ bogus }")
+        fail "should have raised GraphQLError"
+      rescue ex : CaidoClient::GraphQLError
+        ex.errors.should eq(["123"])
+      end
+    end
+  end
+
+  it "raises GraphQLError (not TypeCastError) when error message is an object" do
+    # An object-valued `message` would also blow up `msg.as_s`. It must be
+    # stringified and collected rather than crash the client.
+    body = %({"errors":[{"message":{"a":1}}]})
+    with_graphql_server(200, body) do |endpoint|
+      client = CaidoClient.new(endpoint)
+      begin
+        client.query("{ bogus }")
+        fail "should have raised GraphQLError"
+      rescue ex : CaidoClient::GraphQLError
+        ex.errors.size.should eq(1)
+        ex.errors.first.should contain("a")
+      end
+    end
+  end
 end
