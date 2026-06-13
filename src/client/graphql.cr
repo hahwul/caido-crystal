@@ -136,7 +136,11 @@ class CaidoClient
     if array = errors.as_a?
       array.each do |err|
         if msg = err["message"]?
-          messages << msg.as_s
+          # A GraphQL error `message` SHOULD be a string, but a malformed or
+          # non-conforming server can send a number/object/array. Read it
+          # nil-safely and fall back to `to_s` so the error still surfaces as
+          # a GraphQLError instead of crashing with a raw TypeCastError.
+          messages << (msg.as_s? || msg.to_s)
         end
       end
     else
