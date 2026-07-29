@@ -10,7 +10,7 @@ Before using caido.cr, ensure your environment meets these requirements:
 
 | Requirement | Details |
 |-------------|---------|
-| Crystal | >= 1.8.1 |
+| Crystal | >= 1.21.0 |
 | Caido | Running instance with GraphQL API enabled |
 | Auth Token | `CAIDO_AUTH_TOKEN` environment variable or custom headers |
 
