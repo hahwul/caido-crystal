@@ -1,146 +1,86 @@
-# AGENTS.md - AI Agent Instructions for caido.cr Documentation Site
+# AGENTS.md - AI Agent Instructions for the caido.cr Documentation Site
 
-This document provides instructions for AI agents working on the caido.cr documentation site.
+This document is for AI agents editing the caido.cr documentation site under `docs/`.
 
 ## Project Overview
 
-This is the documentation site for [caido.cr](https://github.com/hahwul/caido.cr), a Crystal client library for Caido's GraphQL API. The site is built with [Hwaro](https://github.com/hahwul/hwaro), a fast and lightweight static site generator written in Crystal.
+This is the documentation companion to [caido.cr](https://github.com/hahwul/caido.cr), a Crystal client library for Caido's GraphQL API. The site is a static site built with [Hwaro](https://github.com/hahwul/hwaro) (Crinja/Jinja2 templates).
+
+It shares a single canonical design system with the docs sites of the sibling libraries (acp.cr, caido.cr, cvss.cr, cwe.cr, epss.cr, fm.cr, kev.cr, purl.cr, sarif.cr, spdx.cr, vex.cr, zap.cr): `templates/` (except the two slot partials), `static/css/style.css`, `static/js/search.js`, and `static/fonts/` are byte-identical across all of them. If you change one of those files here, port the change to every sibling site.
 
 ## Hwaro Usage
 
-### Installation
-
-**Homebrew:**
-```bash
-brew tap hahwul/hwaro
-brew install hwaro
-```
-
-**From Source (Crystal):**
-```bash
-git clone https://github.com/hahwul/hwaro.git
-cd hwaro
-shards install
-shards build --release --no-debug --production
-# Binary: ./bin/hwaro
-```
-
-### Essential Commands
+Run from inside `docs/`:
 
 | Command | Description |
 |---------|-------------|
-| `hwaro init [DIR]` | Initialize a new site |
-| `hwaro build` | Build the site to `public/` directory |
-| `hwaro serve` | Start development server with live reload |
-| `hwaro version` | Show version information |
-| `hwaro deploy` | Deploy the site (requires configuration) |
-
-### Build & Serve Options
-
-- **Drafts:** `hwaro build --drafts` / `hwaro serve --drafts` (Include content with `draft = true`)
-- **Port:** `hwaro serve -p 8080` (Default: 3000)
-- **Open:** `hwaro serve --open` (Open browser automatically)
-- **Base URL:** `hwaro build --base-url "https://example.com"`
+| `hwaro build` | Build the site to `public/` |
+| `hwaro serve` | Local dev server with live reload (port 3000) |
+| `hwaro doctor` | Sanity-check config and content |
 
 ## Directory Structure
 
 ```
-.
-├── config.toml          # Site configuration
-├── AGENTS.md            # AI agent instructions
-├── content/             # Markdown content files
-│   ├── index.md         # Homepage
-│   ├── user-guide/      # User Guide section
-│   │   ├── _index.md
-│   │   ├── getting-started.md
-│   │   ├── basic-usage.md
-│   │   ├── queries.md
-│   │   ├── mutations.md
-│   │   └── pagination-filtering.md
-│   └── api-reference/   # API Reference section
-│       ├── _index.md
-│       ├── client.md
-│       ├── queries.md
-│       ├── mutations.md
-│       └── utils.md
-├── templates/           # Jinja2 templates
-│   ├── header.html      # HTML head partial
-│   ├── footer.html      # Footer partial
-│   ├── page.html        # Default page template
-│   ├── section.html     # Section listing template
-│   ├── 404.html         # Not found page
-│   ├── taxonomy.html
-│   ├── taxonomy_term.html
-│   └── shortcodes/
-│       └── alert.html
-└── static/              # Static assets
-    ├── css/
-    │   └── style.css    # Main stylesheet (Apple-style design)
-    └── js/
-        └── search.js    # Client-side search (Fuse.js)
+docs/
+├── config.toml            # Site configuration (incl. [og.auto_image] brand colors)
+├── content/               # Markdown content (user-guide/, api-reference/ + index.md)
+├── templates/
+│   ├── header.html        # <head>, no-FOUC theme script, css link
+│   ├── footer.html        # footer, search.js, theme-toggle + mobile-drawer scripts
+│   ├── page.html          # page body + prev/next nav
+│   ├── section.html       # section body + "In This Section" cards
+│   ├── 404.html
+│   ├── taxonomy.html / taxonomy_term.html
+│   ├── partials/
+│   │   ├── nav.html       # top bar: brand, section links, search, theme, GitHub
+│   │   ├── sidebar.html   # DYNAMIC sidebar (loops site.sections, weight-sorted)
+│   │   ├── search.html    # command-K search overlay
+│   │   ├── brand.html     # per-site slot: sidebar logo (empty by default)
+│   │   └── icons.html     # per-site slot: favicons (empty by default)
+│   └── shortcodes/alert.html
+└── static/
+    ├── css/style.css      # design tokens + all component styles
+    ├── js/search.js       # search modal logic
+    └── fonts/             # Geist + Geist Mono (variable woff2, self-hosted)
 ```
 
-## Content Management
+## Design System (do not regress these)
 
-### Creating New Pages
+- **Theming:** every color is a `light-dark()` token in `:root`. The theme toggle pins a scheme via `data-theme` on `<html>`; auto follows the OS. Never hardcode a color in a component rule - add or reuse a token.
+- **Syntax highlighting** is server-side (Tartrazine, hljs-compatible classes) colored by the `--code-*` tokens in `style.css`. Do **not** re-add `{{ highlight_css }}` to `header.html` - the CDN theme would fight the tokens.
+- **Typography:** Geist (sans) and Geist Mono, self-hosted in `static/fonts/`. Do not add webfont CDN links.
+- **Mobile:** the sidebar becomes a drawer behind the hamburger button under 768px. Keep the drawer script in `footer.html` intact.
+- **No new JS dependencies.** The site uses only `static/js/search.js` and the inline scripts in `header.html`/`footer.html`.
 
-Create a `.md` file in the appropriate `content/` subdirectory.
+## Content Guidelines
 
-**Front Matter (TOML):**
+### Front matter
+
+TOML front matter delimited by `+++`:
+
 ```toml
 +++
 title = "Page Title"
-description = "Page description for SEO"
+description = "Short SEO description (also rendered as the page lede)"
 weight = 1
 +++
-
-Your markdown content here.
 ```
 
-### Content Sections
+- **Always preserve front matter** when editing.
+- `description` renders under the h1 as the page lede and on section cards - keep it one sentence, informative, no trailing period needed.
+- Cross-link generously between pages. **Keep URLs relative** - `{{ base_url }}/...` in templates, `/section/page/` in markdown links.
 
-- **User Guide** (`content/user-guide/`): Practical guides for using caido.cr
-- **API Reference** (`content/api-reference/`): Complete API documentation
+### Adding a new page
 
-### Front Matter Fields
+1. Create the `.md` under the right section directory with `title`, `description`, and `weight`.
+2. That's it. The sidebar, header nav, section cards, and prev/next links are all generated dynamically from `site.sections` (weight-sorted). **No template edits needed.**
 
-| Field | Type | Description |
-|-------|------|-------------|
-| title | string | Page title (required) |
-| description | string | Page description for SEO |
-| weight | integer | Sort order (lower = first) |
-| draft | boolean | If true, excluded from production build |
-| tags | array | List of tags |
+### Editing rules
 
-## Template Development
-
-### Templates use Jinja2 syntax (Crinja)
-
-- `header.html` and `footer.html` are included as partials
-- `page.html` renders individual pages with sidebar navigation
-- `section.html` extends page layout with section listing
-- Sidebar navigation is hardcoded in templates (update when adding pages)
-
-### Key Variables
-
-- `{{ page.title }}` - Page title
-- `{{ page.description }}` - Page description
-- `{{ content }}` - Rendered content
-- `{{ base_url }}` - Site base URL
-- `{{ site.title }}` - Site title
-
-## Styling
-
-- Apple-style design with frosted glass header, fixed sidebar
-- CSS custom properties in `:root` for consistent theming
-- Responsive: sidebar hidden on screens <= 768px
-- Search modal triggered by Cmd+K
+- Keep terminology consistent with the library: "client", "query", "mutation", "pagination", "GraphQL".
+- Code samples must be valid Crystal that runs against the latest caido.cr - copy from the repo's `examples/` directory when in doubt.
 
 ## Notes for AI Agents
 
-1. **Always preserve front matter** when editing content files.
-2. **Update sidebar navigation** in both `page.html` and `section.html` when adding/removing pages.
-3. **Use `hwaro serve`** to preview changes locally.
-4. **Keep the Apple-style design** consistent with fm.cr documentation.
-5. **Use `weight` in front matter** to control page ordering within sections.
-6. **Keep URLs relative** using `{{ base_url }}` prefix.
+1. **Don't invent APIs.** Only document symbols that exist in `src/**`. Verify by grepping the source before adding examples.
+2. **Use `crystal spec`** (from the repo root) to confirm any code sample you add still type-checks semantically.
