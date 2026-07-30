@@ -1,0 +1,405 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Client setup, queries, and mutations">
+  <title>Basic Usage - caido.cr</title>
+  <script>(function(){try{var t=localStorage.getItem("hwaro-theme");if(t==="light"||t==="dark"){document.documentElement.setAttribute("data-theme",t)}}catch(e){}})()</script>
+  <meta property="og:title" content="Basic Usage">
+  <meta property="og:type" content="article">
+  <meta property="og:url" content="https://caido.cr.hahwul.com/user-guide/basic-usage/">
+  <meta property="og:description" content="Client setup, queries, and mutations">
+  <meta property="og:image" content="https://caido.cr.hahwul.com/og-images/user-guide-basic-usage.png">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Basic Usage">
+  <meta name="twitter:description" content="Client setup, queries, and mutations">
+  <meta name="twitter:image" content="https://caido.cr.hahwul.com/og-images/user-guide-basic-usage.png">
+  <link rel="canonical" href="https://caido.cr.hahwul.com/user-guide/basic-usage/">
+  <link rel="stylesheet" href="https://caido.cr.hahwul.com/css/style.css">
+  
+  <meta name="apple-mobile-web-app-title" content="caido.cr">
+
+</head>
+<body data-section="user-guide">
+<a class="skip-link" href="#main">Skip to content</a>
+<header class="docs-header">
+  <button class="nav-toggle" type="button" aria-label="Menu" aria-expanded="false" aria-controls="sidebar">
+    <svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><path d="M2 4.5h12M2 8h12M2 11.5h12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+  </button>
+  <a href="https://caido.cr.hahwul.com/" class="logo">caido.cr <span>Documentation</span></a>
+  <nav class="header-nav" aria-label="Sections">
+    <a href="https://caido.cr.hahwul.com/user-guide/" class="active">User Guide</a><a href="https://caido.cr.hahwul.com/api-reference/">API Reference</a>
+  </nav>
+  <div class="header-right">
+    <button class="search-trigger" type="button" onclick="openSearch()" title="Search (⌘K)">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      <span>Search</span>
+      <kbd>&#8984;K</kbd>
+    </button>
+    <button class="theme-toggle" type="button" data-mode="auto" aria-label="Theme: auto" title="Theme: auto">
+      <svg class="tt-auto" width="15" height="15" viewBox="0 0 16 16" aria-hidden="true"><circle cx="8" cy="8" r="6.25" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M8 1.75a6.25 6.25 0 0 1 0 12.5z" fill="currentColor"/></svg>
+      <svg class="tt-light" width="15" height="15" viewBox="0 0 16 16" aria-hidden="true"><circle cx="8" cy="8" r="3.25" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M8 .9v2M8 13.1v2M.9 8h2M13.1 8h2M2.98 2.98l1.42 1.42M11.6 11.6l1.42 1.42M13.02 2.98L11.6 4.4M4.4 11.6l-1.42 1.42" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+      <svg class="tt-dark" width="15" height="15" viewBox="0 0 16 16" aria-hidden="true"><path d="M13.4 9.9A5.8 5.8 0 0 1 6.1 2.6a5.8 5.8 0 1 0 7.3 7.3z" fill="currentColor"/></svg>
+    </button>
+    <a class="gh-link" href="https://github.com/hahwul/caido.cr" aria-label="GitHub repository">
+      <svg width="17" height="17" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12"/></svg>
+    </a>
+  </div>
+</header>
+<div class="search-overlay" id="searchOverlay" onclick="if(event.target===this)closeSearch()">
+  <div class="search-modal">
+    <div class="search-input-wrap">
+      <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      <input type="search" id="searchInput" aria-label="Search" placeholder="Search documentation..." autocomplete="off">
+      <kbd onclick="closeSearch()">ESC</kbd>
+    </div>
+    <div class="search-results" id="searchResults"></div>
+  </div>
+</div>
+<div class="docs-container">
+<aside class="docs-sidebar" id="sidebar">
+
+  
+  <div class="sidebar-section">
+    <div class="sidebar-title">User Guide</div>
+    <ul class="sidebar-links">
+      <li><a href="https://caido.cr.hahwul.com/user-guide/">Overview</a></li>
+      
+      <li><a href="https://caido.cr.hahwul.com/user-guide/getting-started/">Getting Started</a></li>
+      
+      <li><a href="https://caido.cr.hahwul.com/user-guide/basic-usage/" class="active" aria-current="page">Basic Usage</a></li>
+      
+      <li><a href="https://caido.cr.hahwul.com/user-guide/queries/">Queries</a></li>
+      
+      <li><a href="https://caido.cr.hahwul.com/user-guide/mutations/">Mutations</a></li>
+      
+      <li><a href="https://caido.cr.hahwul.com/user-guide/pagination-filtering/">Pagination &amp; Filtering</a></li>
+      
+    </ul>
+  </div>
+  
+  <div class="sidebar-section">
+    <div class="sidebar-title">API Reference</div>
+    <ul class="sidebar-links">
+      <li><a href="https://caido.cr.hahwul.com/api-reference/">Overview</a></li>
+      
+      <li><a href="https://caido.cr.hahwul.com/api-reference/client/">CaidoClient</a></li>
+      
+      <li><a href="https://caido.cr.hahwul.com/api-reference/queries/">Queries</a></li>
+      
+      <li><a href="https://caido.cr.hahwul.com/api-reference/mutations/">Mutations</a></li>
+      
+      <li><a href="https://caido.cr.hahwul.com/api-reference/utils/">Utils</a></li>
+      
+    </ul>
+  </div>
+  
+</aside>
+<div class="sidebar-scrim"></div>
+  <main id="main" class="docs-main">
+    <h1>Basic Usage</h1>
+    <p class="lede">Client setup, queries, and mutations</p>
+    <h2 id="creating-a-client">Creating a Client</h2>
+<p>The <code>CaidoClient</code> is the main entry point. It wraps a GraphQL client and handles authentication:</p>
+<pre><code class="language-crystal hljs"><span class="hljs-keyword">require</span> <span class="hljs-string">&quot;</span><span class="hljs-string">caido</span><span class="hljs-string">&quot;</span><span class="hljs-string"></span>
+
+<span class="hljs-comment"># With automatic auth token from CAIDO_AUTH_TOKEN env var</span>
+client <span class="hljs-operator">=</span> <span class="hljs-variable constant_">CaidoClient</span>.new <span class="hljs-string">&quot;</span><span class="hljs-string">http://localhost:8080/graphql</span><span class="hljs-string">&quot;</span><span class="hljs-string"></span>
+
+<span class="hljs-comment"># With custom headers</span>
+client <span class="hljs-operator">=</span> <span class="hljs-variable constant_">CaidoClient</span>.new(
+  <span class="hljs-string">&quot;</span><span class="hljs-string">http://localhost:8080/graphql</span><span class="hljs-string">&quot;</span><span class="hljs-string"></span>,
+  {<span class="hljs-string">&quot;</span><span class="hljs-string">Authorization</span><span class="hljs-string">&quot;</span><span class="hljs-string"></span> <span class="hljs-operator">=&gt;</span> <span class="hljs-string">&quot;</span><span class="hljs-string">Bearer my-token</span><span class="hljs-string">&quot;</span><span class="hljs-string"></span>}
+)
+</code></pre>
+<h2 id="making-queries">Making Queries</h2>
+<p>Use the <code>CaidoQueries</code> module to build queries, then execute them with <code>client.query</code>:</p>
+<pre><code class="language-crystal hljs"><span class="hljs-comment"># Get all requests (paginated)</span>
+query <span class="hljs-operator">=</span> <span class="hljs-variable constant_">CaidoQueries</span><span class="hljs-variable constant_">::</span><span class="hljs-variable constant_">Requests</span>.all(first: <span class="hljs-number">10</span>)
+response <span class="hljs-operator">=</span> client.query(query)
+puts response
+
+<span class="hljs-comment"># Get a specific request by ID</span>
+query <span class="hljs-operator">=</span> <span class="hljs-variable constant_">CaidoQueries</span><span class="hljs-variable constant_">::</span><span class="hljs-variable constant_">Requests</span>.by_id(<span class="hljs-string">&quot;</span><span class="hljs-string">request-id</span><span class="hljs-string">&quot;</span><span class="hljs-string"></span>)
+response <span class="hljs-operator">=</span> client.query(query)
+puts response
+
+<span class="hljs-comment"># Get current viewer info</span>
+query <span class="hljs-operator">=</span> <span class="hljs-variable constant_">CaidoQueries</span><span class="hljs-variable constant_">::</span><span class="hljs-variable constant_">Viewer</span>.info
+response <span class="hljs-operator">=</span> client.query(query)
+puts response
+</code></pre>
+<h3 id="available-query-modules">Available Query Modules</h3>
+<table>
+<thead>
+<tr>
+<th>Module</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>Requests</code></td>
+<td>HTTP request/response history</td>
+</tr>
+<tr>
+<td><code>Sitemap</code></td>
+<td>Target site structure</td>
+</tr>
+<tr>
+<td><code>Intercept</code></td>
+<td>Proxy intercept queue and status</td>
+</tr>
+<tr>
+<td><code>Scopes</code></td>
+<td>Target scope definitions</td>
+</tr>
+<tr>
+<td><code>Findings</code></td>
+<td>Security findings</td>
+</tr>
+<tr>
+<td><code>Projects</code></td>
+<td>Project management</td>
+</tr>
+<tr>
+<td><code>Workflows</code></td>
+<td>Automation workflows</td>
+</tr>
+<tr>
+<td><code>Replay</code></td>
+<td>Request replay sessions</td>
+</tr>
+<tr>
+<td><code>Automate</code></td>
+<td>Automated attack sessions</td>
+</tr>
+<tr>
+<td><code>Viewer</code></td>
+<td>Current user info</td>
+</tr>
+<tr>
+<td><code>Runtime</code></td>
+<td>Caido version and platform</td>
+</tr>
+<tr>
+<td><code>InstanceSettings</code></td>
+<td>Instance configuration</td>
+</tr>
+<tr>
+<td><code>DNS</code></td>
+<td>DNS rewrites and upstreams</td>
+</tr>
+<tr>
+<td><code>UpstreamProxies</code></td>
+<td>Proxy chaining config</td>
+</tr>
+<tr>
+<td><code>Tamper</code></td>
+<td>Request/response tamper rules</td>
+</tr>
+<tr>
+<td><code>Assistant</code></td>
+<td>AI assistant sessions</td>
+</tr>
+<tr>
+<td><code>Environments</code></td>
+<td>Environment variables</td>
+</tr>
+<tr>
+<td><code>Plugins</code></td>
+<td>Installed plugins</td>
+</tr>
+</tbody>
+</table>
+<h2 id="making-mutations">Making Mutations</h2>
+<p>Use the <code>CaidoMutations</code> module for write operations:</p>
+<pre><code class="language-crystal hljs"><span class="hljs-comment"># Create a security finding</span>
+mutation <span class="hljs-operator">=</span> <span class="hljs-variable constant_">CaidoMutations</span><span class="hljs-variable constant_">::</span><span class="hljs-variable constant_">Findings</span>.create(
+  request_id: <span class="hljs-string">&quot;</span><span class="hljs-string">req-123</span><span class="hljs-string">&quot;</span><span class="hljs-string"></span>,
+  title: <span class="hljs-string">&quot;</span><span class="hljs-string">XSS Found</span><span class="hljs-string">&quot;</span><span class="hljs-string"></span>,
+  description: <span class="hljs-string">&quot;</span><span class="hljs-string">Reflected XSS in search parameter</span><span class="hljs-string">&quot;</span><span class="hljs-string"></span>,
+  reporter: <span class="hljs-string">&quot;</span><span class="hljs-string">my-scanner</span><span class="hljs-string">&quot;</span><span class="hljs-string"></span>
+)
+response <span class="hljs-operator">=</span> client.query(mutation)
+puts response
+
+<span class="hljs-comment"># Create a scope</span>
+mutation <span class="hljs-operator">=</span> <span class="hljs-variable constant_">CaidoMutations</span><span class="hljs-variable constant_">::</span><span class="hljs-variable constant_">Scopes</span>.create(
+  name: <span class="hljs-string">&quot;</span><span class="hljs-string">Target</span><span class="hljs-string">&quot;</span><span class="hljs-string"></span>,
+  allowlist: [<span class="hljs-string">&quot;</span><span class="hljs-string">*.example.com</span><span class="hljs-string">&quot;</span><span class="hljs-string"></span>],
+  denylist: [<span class="hljs-string">&quot;</span><span class="hljs-string">admin.example.com</span><span class="hljs-string">&quot;</span><span class="hljs-string"></span>]
+)
+response <span class="hljs-operator">=</span> client.query(mutation)
+puts response
+</code></pre>
+<h3 id="available-mutation-modules">Available Mutation Modules</h3>
+<table>
+<thead>
+<tr>
+<th>Module</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>Requests</code></td>
+<td>Update request metadata, render</td>
+</tr>
+<tr>
+<td><code>Sitemap</code></td>
+<td>Create/delete sitemap entries</td>
+</tr>
+<tr>
+<td><code>Intercept</code></td>
+<td>Forward/drop messages, pause/resume</td>
+</tr>
+<tr>
+<td><code>Scopes</code></td>
+<td>CRUD scope operations</td>
+</tr>
+<tr>
+<td><code>Findings</code></td>
+<td>Create/update/delete/export findings</td>
+</tr>
+<tr>
+<td><code>Projects</code></td>
+<td>Select/create/delete projects</td>
+</tr>
+<tr>
+<td><code>Workflows</code></td>
+<td>CRUD and run workflows</td>
+</tr>
+<tr>
+<td><code>Replay</code></td>
+<td>Manage replay sessions and collections</td>
+</tr>
+<tr>
+<td><code>Automate</code></td>
+<td>Manage automated attack sessions</td>
+</tr>
+<tr>
+<td><code>Tamper</code></td>
+<td>Manage tamper rules and collections</td>
+</tr>
+<tr>
+<td><code>DNS</code></td>
+<td>Configure DNS rewrites and upstreams</td>
+</tr>
+<tr>
+<td><code>UpstreamProxies</code></td>
+<td>Configure HTTP/SOCKS proxies</td>
+</tr>
+<tr>
+<td><code>Assistant</code></td>
+<td>AI assistant session management</td>
+</tr>
+<tr>
+<td><code>Authentication</code></td>
+<td>Login/logout operations</td>
+</tr>
+<tr>
+<td><code>Tasks</code></td>
+<td>Cancel running tasks</td>
+</tr>
+</tbody>
+</table>
+<h2 id="error-handling">Error Handling</h2>
+<p>Handle errors from the GraphQL API:</p>
+<pre><code class="language-crystal hljs"><span class="hljs-keyword">begin</span>
+  response <span class="hljs-operator">=</span> client.query(query)
+  puts response
+<span class="hljs-keyword">rescue</span> ex
+  puts <span class="hljs-string">&quot;</span><span class="hljs-string">Error: </span><span class="hljs-subst">#{</span>ex.message<span class="hljs-subst">}</span><span class="hljs-string">&quot;</span><span class="hljs-string"></span>
+<span class="hljs-keyword">end</span>
+</code></pre>
+<h2 id="usage-pattern">Usage Pattern</h2>
+<p>All operations follow a consistent pattern:</p>
+<pre><code class="language-crystal hljs"><span class="hljs-comment"># 1. Build the query or mutation string</span>
+query <span class="hljs-operator">=</span> <span class="hljs-variable constant_">CaidoQueries</span><span class="hljs-variable constant_">::</span><span class="hljs-variable constant_">Module</span>.method(args)
+
+<span class="hljs-comment"># 2. Execute it</span>
+response <span class="hljs-operator">=</span> client.query(query)
+
+<span class="hljs-comment"># 3. Process the response</span>
+puts response
+</code></pre>
+
+    
+    <nav class="page-nav" aria-label="Adjacent pages">
+      
+      <a class="page-nav-link page-nav-prev" href="https://caido.cr.hahwul.com/user-guide/getting-started/" rel="prev">
+        <span class="page-nav-label">Previous</span>
+        <span class="page-nav-title">Getting Started</span>
+      </a>
+      
+      
+      <a class="page-nav-link page-nav-next" href="https://caido.cr.hahwul.com/user-guide/queries/" rel="next">
+        <span class="page-nav-label">Next</span>
+        <span class="page-nav-title">Queries</span>
+      </a>
+      
+    </nav>
+    
+    <div class="docs-footer">
+      <p>caido.cr documentation</p>
+      <div class="docs-footer-links">
+        <a href="https://github.com/hahwul/caido.cr">GitHub</a>
+        <a href="https://github.com/hahwul/hwaro">Built with Hwaro</a>
+      </div>
+    </div>
+  </main>
+</div>
+
+<script src="https://caido.cr.hahwul.com/js/search.js"></script>
+<script>
+(function () {
+  var KEY = "hwaro-theme";
+  var MODES = ["auto", "light", "dark"];
+  var root = document.documentElement;
+  var btn = document.querySelector(".theme-toggle");
+  if (!btn) return;
+  function apply(mode) {
+    if (mode === "auto") {
+      root.removeAttribute("data-theme");
+      try { localStorage.removeItem(KEY); } catch (e) {}
+    } else {
+      root.setAttribute("data-theme", mode);
+      try { localStorage.setItem(KEY, mode); } catch (e) {}
+    }
+    btn.setAttribute("data-mode", mode);
+    btn.setAttribute("aria-label", "Theme: " + mode);
+    btn.title = "Theme: " + mode;
+  }
+  var stored = "auto";
+  try { var t = localStorage.getItem(KEY); if (t === "light" || t === "dark") stored = t; } catch (e) {}
+  btn.addEventListener("click", function () {
+    apply(MODES[(MODES.indexOf(btn.getAttribute("data-mode")) + 1) % MODES.length]);
+  });
+  apply(stored);
+})();
+(function () {
+  var btn = document.querySelector(".nav-toggle");
+  var scrim = document.querySelector(".sidebar-scrim");
+  var sidebar = document.getElementById("sidebar");
+  if (!btn) return;
+  function set(open) {
+    document.body.classList.toggle("nav-open", open);
+    btn.setAttribute("aria-expanded", open ? "true" : "false");
+  }
+  btn.addEventListener("click", function () {
+    set(!document.body.classList.contains("nav-open"));
+  });
+  if (scrim) scrim.addEventListener("click", function () { set(false); });
+  if (sidebar) sidebar.addEventListener("click", function (e) {
+    if (e.target.closest("a")) set(false);
+  });
+  document.addEventListener("keydown", function (e) {
+    if (e.key === "Escape") set(false);
+  });
+})();
+</script>
+
+</body>
+</html>

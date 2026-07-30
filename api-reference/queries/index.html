@@ -1,0 +1,620 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Complete query module reference">
+  <title>Queries - caido.cr</title>
+  <script>(function(){try{var t=localStorage.getItem("hwaro-theme");if(t==="light"||t==="dark"){document.documentElement.setAttribute("data-theme",t)}}catch(e){}})()</script>
+  <meta property="og:title" content="Queries">
+  <meta property="og:type" content="article">
+  <meta property="og:url" content="https://caido.cr.hahwul.com/api-reference/queries/">
+  <meta property="og:description" content="Complete query module reference">
+  <meta property="og:image" content="https://caido.cr.hahwul.com/og-images/api-reference-queries.png">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Queries">
+  <meta name="twitter:description" content="Complete query module reference">
+  <meta name="twitter:image" content="https://caido.cr.hahwul.com/og-images/api-reference-queries.png">
+  <link rel="canonical" href="https://caido.cr.hahwul.com/api-reference/queries/">
+  <link rel="stylesheet" href="https://caido.cr.hahwul.com/css/style.css">
+  
+  <meta name="apple-mobile-web-app-title" content="caido.cr">
+
+</head>
+<body data-section="api-reference">
+<a class="skip-link" href="#main">Skip to content</a>
+<header class="docs-header">
+  <button class="nav-toggle" type="button" aria-label="Menu" aria-expanded="false" aria-controls="sidebar">
+    <svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><path d="M2 4.5h12M2 8h12M2 11.5h12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+  </button>
+  <a href="https://caido.cr.hahwul.com/" class="logo">caido.cr <span>Documentation</span></a>
+  <nav class="header-nav" aria-label="Sections">
+    <a href="https://caido.cr.hahwul.com/user-guide/">User Guide</a><a href="https://caido.cr.hahwul.com/api-reference/" class="active">API Reference</a>
+  </nav>
+  <div class="header-right">
+    <button class="search-trigger" type="button" onclick="openSearch()" title="Search (⌘K)">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      <span>Search</span>
+      <kbd>&#8984;K</kbd>
+    </button>
+    <button class="theme-toggle" type="button" data-mode="auto" aria-label="Theme: auto" title="Theme: auto">
+      <svg class="tt-auto" width="15" height="15" viewBox="0 0 16 16" aria-hidden="true"><circle cx="8" cy="8" r="6.25" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M8 1.75a6.25 6.25 0 0 1 0 12.5z" fill="currentColor"/></svg>
+      <svg class="tt-light" width="15" height="15" viewBox="0 0 16 16" aria-hidden="true"><circle cx="8" cy="8" r="3.25" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M8 .9v2M8 13.1v2M.9 8h2M13.1 8h2M2.98 2.98l1.42 1.42M11.6 11.6l1.42 1.42M13.02 2.98L11.6 4.4M4.4 11.6l-1.42 1.42" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+      <svg class="tt-dark" width="15" height="15" viewBox="0 0 16 16" aria-hidden="true"><path d="M13.4 9.9A5.8 5.8 0 0 1 6.1 2.6a5.8 5.8 0 1 0 7.3 7.3z" fill="currentColor"/></svg>
+    </button>
+    <a class="gh-link" href="https://github.com/hahwul/caido.cr" aria-label="GitHub repository">
+      <svg width="17" height="17" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12"/></svg>
+    </a>
+  </div>
+</header>
+<div class="search-overlay" id="searchOverlay" onclick="if(event.target===this)closeSearch()">
+  <div class="search-modal">
+    <div class="search-input-wrap">
+      <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      <input type="search" id="searchInput" aria-label="Search" placeholder="Search documentation..." autocomplete="off">
+      <kbd onclick="closeSearch()">ESC</kbd>
+    </div>
+    <div class="search-results" id="searchResults"></div>
+  </div>
+</div>
+<div class="docs-container">
+<aside class="docs-sidebar" id="sidebar">
+
+  
+  <div class="sidebar-section">
+    <div class="sidebar-title">User Guide</div>
+    <ul class="sidebar-links">
+      <li><a href="https://caido.cr.hahwul.com/user-guide/">Overview</a></li>
+      
+      <li><a href="https://caido.cr.hahwul.com/user-guide/getting-started/">Getting Started</a></li>
+      
+      <li><a href="https://caido.cr.hahwul.com/user-guide/basic-usage/">Basic Usage</a></li>
+      
+      <li><a href="https://caido.cr.hahwul.com/user-guide/queries/">Queries</a></li>
+      
+      <li><a href="https://caido.cr.hahwul.com/user-guide/mutations/">Mutations</a></li>
+      
+      <li><a href="https://caido.cr.hahwul.com/user-guide/pagination-filtering/">Pagination &amp; Filtering</a></li>
+      
+    </ul>
+  </div>
+  
+  <div class="sidebar-section">
+    <div class="sidebar-title">API Reference</div>
+    <ul class="sidebar-links">
+      <li><a href="https://caido.cr.hahwul.com/api-reference/">Overview</a></li>
+      
+      <li><a href="https://caido.cr.hahwul.com/api-reference/client/">CaidoClient</a></li>
+      
+      <li><a href="https://caido.cr.hahwul.com/api-reference/queries/" class="active" aria-current="page">Queries</a></li>
+      
+      <li><a href="https://caido.cr.hahwul.com/api-reference/mutations/">Mutations</a></li>
+      
+      <li><a href="https://caido.cr.hahwul.com/api-reference/utils/">Utils</a></li>
+      
+    </ul>
+  </div>
+  
+</aside>
+<div class="sidebar-scrim"></div>
+  <main id="main" class="docs-main">
+    <h1>Queries</h1>
+    <p class="lede">Complete query module reference</p>
+    <h2 id="overview">Overview</h2>
+<p>The <code>CaidoQueries</code> module contains sub-modules that return pre-built GraphQL query strings. Each method returns a <code>String</code> that can be passed to <code>CaidoClient#query</code>.</p>
+<h2 id="caidoqueriesrequests">CaidoQueries::Requests</h2>
+<p>HTTP request and response history.</p>
+<table>
+<thead>
+<tr>
+<th>Method</th>
+<th>Parameters</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>.all</code></td>
+<td><code>first</code>, <code>filter?</code>, <code>after?</code></td>
+<td>Get paginated requests</td>
+</tr>
+<tr>
+<td><code>.by_id</code></td>
+<td><code>id</code></td>
+<td>Get a single request with full details</td>
+</tr>
+<tr>
+<td><code>.by_offset</code></td>
+<td><code>offset</code>, <code>limit</code>, <code>filter</code></td>
+<td>Get requests with offset pagination</td>
+</tr>
+</tbody>
+</table>
+<pre><code class="language-crystal hljs"><span class="hljs-variable constant_">CaidoQueries</span><span class="hljs-variable constant_">::</span><span class="hljs-variable constant_">Requests</span>.all(first: <span class="hljs-number">10</span>)
+<span class="hljs-variable constant_">CaidoQueries</span><span class="hljs-variable constant_">::</span><span class="hljs-variable constant_">Requests</span>.all(first: <span class="hljs-number">10</span>, filter: <span class="hljs-string">&quot;</span><span class="hljs-string">host:example.com</span><span class="hljs-string">&quot;</span><span class="hljs-string"></span>, after: <span class="hljs-string">&quot;</span><span class="hljs-string">cursor</span><span class="hljs-string">&quot;</span><span class="hljs-string"></span>)
+<span class="hljs-variable constant_">CaidoQueries</span><span class="hljs-variable constant_">::</span><span class="hljs-variable constant_">Requests</span>.by_id(<span class="hljs-string">&quot;</span><span class="hljs-string">request-id</span><span class="hljs-string">&quot;</span><span class="hljs-string"></span>)
+<span class="hljs-variable constant_">CaidoQueries</span><span class="hljs-variable constant_">::</span><span class="hljs-variable constant_">Requests</span>.by_offset(offset: <span class="hljs-number">0</span>, limit: <span class="hljs-number">20</span>, filter: <span class="hljs-string">&quot;</span><span class="hljs-string">&quot;</span><span class="hljs-string"></span>)
+</code></pre>
+<h2 id="caidoqueriessitemap">CaidoQueries::Sitemap</h2>
+<p>Target site structure exploration.</p>
+<table>
+<thead>
+<tr>
+<th>Method</th>
+<th>Parameters</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>.root_entries</code></td>
+<td><code>scope_id</code></td>
+<td>Get root sitemap entries</td>
+</tr>
+<tr>
+<td><code>.descendant_entries</code></td>
+<td><code>parent_id</code>, <code>depth</code></td>
+<td>Get child entries (DIRECT or ALL)</td>
+</tr>
+<tr>
+<td><code>.by_id</code></td>
+<td><code>id</code></td>
+<td>Get a single sitemap entry</td>
+</tr>
+</tbody>
+</table>
+<pre><code class="language-crystal hljs"><span class="hljs-variable constant_">CaidoQueries</span><span class="hljs-variable constant_">::</span><span class="hljs-variable constant_">Sitemap</span>.root_entries(scope_id: <span class="hljs-string">&quot;</span><span class="hljs-string">scope-id</span><span class="hljs-string">&quot;</span><span class="hljs-string"></span>)
+<span class="hljs-variable constant_">CaidoQueries</span><span class="hljs-variable constant_">::</span><span class="hljs-variable constant_">Sitemap</span>.descendant_entries(parent_id: <span class="hljs-string">&quot;</span><span class="hljs-string">entry-id</span><span class="hljs-string">&quot;</span><span class="hljs-string"></span>, depth: <span class="hljs-string">&quot;</span><span class="hljs-string">DIRECT</span><span class="hljs-string">&quot;</span><span class="hljs-string"></span>)
+<span class="hljs-variable constant_">CaidoQueries</span><span class="hljs-variable constant_">::</span><span class="hljs-variable constant_">Sitemap</span>.by_id(<span class="hljs-string">&quot;</span><span class="hljs-string">entry-id</span><span class="hljs-string">&quot;</span><span class="hljs-string"></span>)
+</code></pre>
+<h2 id="caidoqueriesintercept">CaidoQueries::Intercept</h2>
+<p>Proxy intercept queue and configuration.</p>
+<table>
+<thead>
+<tr>
+<th>Method</th>
+<th>Parameters</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>.entries</code></td>
+<td><code>first</code>, <code>filter?</code>, <code>after?</code></td>
+<td>Get intercepted messages</td>
+</tr>
+<tr>
+<td><code>.status</code></td>
+<td>--</td>
+<td>Get current intercept status</td>
+</tr>
+<tr>
+<td><code>.options</code></td>
+<td>--</td>
+<td>Get intercept configuration</td>
+</tr>
+</tbody>
+</table>
+<h2 id="caidoqueriesscopes">CaidoQueries::Scopes</h2>
+<p>Target scope definitions.</p>
+<table>
+<thead>
+<tr>
+<th>Method</th>
+<th>Parameters</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>.all</code></td>
+<td>--</td>
+<td>Get all scopes</td>
+</tr>
+<tr>
+<td><code>.by_id</code></td>
+<td><code>id</code></td>
+<td>Get a single scope</td>
+</tr>
+</tbody>
+</table>
+<h2 id="caidoqueriesfindings">CaidoQueries::Findings</h2>
+<p>Security findings management.</p>
+<table>
+<thead>
+<tr>
+<th>Method</th>
+<th>Parameters</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>.all</code></td>
+<td><code>first</code>, <code>after?</code></td>
+<td>Get paginated findings</td>
+</tr>
+<tr>
+<td><code>.by_id</code></td>
+<td><code>id</code></td>
+<td>Get a single finding</td>
+</tr>
+<tr>
+<td><code>.reporters</code></td>
+<td>--</td>
+<td>Get available reporter names</td>
+</tr>
+</tbody>
+</table>
+<h2 id="caidoqueriesprojects">CaidoQueries::Projects</h2>
+<p>Project management.</p>
+<table>
+<thead>
+<tr>
+<th>Method</th>
+<th>Parameters</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>.current</code></td>
+<td>--</td>
+<td>Get the current active project</td>
+</tr>
+<tr>
+<td><code>.all</code></td>
+<td>--</td>
+<td>Get all projects (cloud feature)</td>
+</tr>
+</tbody>
+</table>
+<h2 id="caidoqueriesworkflows">CaidoQueries::Workflows</h2>
+<p>Automation workflow queries.</p>
+<table>
+<thead>
+<tr>
+<th>Method</th>
+<th>Parameters</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>.all</code></td>
+<td>--</td>
+<td>Get all workflows</td>
+</tr>
+<tr>
+<td><code>.by_id</code></td>
+<td><code>id</code></td>
+<td>Get a single workflow</td>
+</tr>
+<tr>
+<td><code>.node_definitions</code></td>
+<td>--</td>
+<td>Get available workflow node types</td>
+</tr>
+</tbody>
+</table>
+<h2 id="caidoqueriesreplay">CaidoQueries::Replay</h2>
+<p>Request replay session management.</p>
+<table>
+<thead>
+<tr>
+<th>Method</th>
+<th>Parameters</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>.sessions</code></td>
+<td><code>first</code>, <code>after?</code></td>
+<td>Get replay sessions</td>
+</tr>
+<tr>
+<td><code>.session_by_id</code></td>
+<td><code>id</code></td>
+<td>Get session details</td>
+</tr>
+<tr>
+<td><code>.collections</code></td>
+<td><code>first</code>, <code>after?</code></td>
+<td>Get session collections</td>
+</tr>
+</tbody>
+</table>
+<h2 id="caidoqueriesautomate">CaidoQueries::Automate</h2>
+<p>Automated attack session queries.</p>
+<table>
+<thead>
+<tr>
+<th>Method</th>
+<th>Parameters</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>.sessions</code></td>
+<td><code>first</code>, <code>after?</code></td>
+<td>Get automate sessions</td>
+</tr>
+<tr>
+<td><code>.session_by_id</code></td>
+<td><code>id</code></td>
+<td>Get session details</td>
+</tr>
+<tr>
+<td><code>.tasks</code></td>
+<td><code>first</code>, <code>after?</code></td>
+<td>Get automate tasks</td>
+</tr>
+</tbody>
+</table>
+<h2 id="caidoqueriesviewer">CaidoQueries::Viewer</h2>
+<p>Current user information.</p>
+<table>
+<thead>
+<tr>
+<th>Method</th>
+<th>Parameters</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>.info</code></td>
+<td>--</td>
+<td>Get logged-in user details and settings</td>
+</tr>
+</tbody>
+</table>
+<h2 id="caidoqueriesruntime">CaidoQueries::Runtime</h2>
+<p>Caido runtime information.</p>
+<table>
+<thead>
+<tr>
+<th>Method</th>
+<th>Parameters</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>.info</code></td>
+<td>--</td>
+<td>Get version, platform, and update info</td>
+</tr>
+</tbody>
+</table>
+<h2 id="caidoqueriesinstancesettings">CaidoQueries::InstanceSettings</h2>
+<p>Instance configuration.</p>
+<table>
+<thead>
+<tr>
+<th>Method</th>
+<th>Parameters</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>.get</code></td>
+<td>--</td>
+<td>Get theme, language, license, AI settings</td>
+</tr>
+</tbody>
+</table>
+<h2 id="caidoqueriesdns">CaidoQueries::DNS</h2>
+<p>DNS configuration queries.</p>
+<table>
+<thead>
+<tr>
+<th>Method</th>
+<th>Parameters</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>.rewrites</code></td>
+<td>--</td>
+<td>Get DNS rewrite rules</td>
+</tr>
+<tr>
+<td><code>.upstreams</code></td>
+<td>--</td>
+<td>Get DNS upstream servers</td>
+</tr>
+</tbody>
+</table>
+<h2 id="caidoqueriesupstreamproxies">CaidoQueries::UpstreamProxies</h2>
+<p>Proxy chaining configuration.</p>
+<table>
+<thead>
+<tr>
+<th>Method</th>
+<th>Parameters</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>.http</code></td>
+<td>--</td>
+<td>Get HTTP upstream proxies</td>
+</tr>
+<tr>
+<td><code>.socks</code></td>
+<td>--</td>
+<td>Get SOCKS upstream proxies</td>
+</tr>
+</tbody>
+</table>
+<h2 id="caidoqueriestamper">CaidoQueries::Tamper</h2>
+<p>Request/response tampering rules.</p>
+<table>
+<thead>
+<tr>
+<th>Method</th>
+<th>Parameters</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>.rules</code></td>
+<td>--</td>
+<td>Get all tamper rules</td>
+</tr>
+<tr>
+<td><code>.rule_by_id</code></td>
+<td><code>id</code></td>
+<td>Get a single tamper rule</td>
+</tr>
+</tbody>
+</table>
+<h2 id="caidoqueriesassistant">CaidoQueries::Assistant</h2>
+<p>AI assistant (cloud feature).</p>
+<table>
+<thead>
+<tr>
+<th>Method</th>
+<th>Parameters</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>.sessions</code></td>
+<td>--</td>
+<td>Get assistant sessions</td>
+</tr>
+<tr>
+<td><code>.models</code></td>
+<td>--</td>
+<td>Get available AI models</td>
+</tr>
+</tbody>
+</table>
+<h2 id="caidoqueriesenvironments">CaidoQueries::Environments</h2>
+<p>Environment variables (cloud feature).</p>
+<table>
+<thead>
+<tr>
+<th>Method</th>
+<th>Parameters</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>.all</code></td>
+<td>--</td>
+<td>Get all environments</td>
+</tr>
+<tr>
+<td><code>.context</code></td>
+<td>--</td>
+<td>Get current environment context</td>
+</tr>
+</tbody>
+</table>
+<h2 id="caidoqueriesplugins">CaidoQueries::Plugins</h2>
+<p>Plugin management.</p>
+<table>
+<thead>
+<tr>
+<th>Method</th>
+<th>Parameters</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>.packages</code></td>
+<td>--</td>
+<td>Get installed plugin packages</td>
+</tr>
+</tbody>
+</table>
+
+    
+    <nav class="page-nav" aria-label="Adjacent pages">
+      
+      <a class="page-nav-link page-nav-prev" href="https://caido.cr.hahwul.com/api-reference/client/" rel="prev">
+        <span class="page-nav-label">Previous</span>
+        <span class="page-nav-title">CaidoClient</span>
+      </a>
+      
+      
+      <a class="page-nav-link page-nav-next" href="https://caido.cr.hahwul.com/api-reference/mutations/" rel="next">
+        <span class="page-nav-label">Next</span>
+        <span class="page-nav-title">Mutations</span>
+      </a>
+      
+    </nav>
+    
+    <div class="docs-footer">
+      <p>caido.cr documentation</p>
+      <div class="docs-footer-links">
+        <a href="https://github.com/hahwul/caido.cr">GitHub</a>
+        <a href="https://github.com/hahwul/hwaro">Built with Hwaro</a>
+      </div>
+    </div>
+  </main>
+</div>
+
+<script src="https://caido.cr.hahwul.com/js/search.js"></script>
+<script>
+(function () {
+  var KEY = "hwaro-theme";
+  var MODES = ["auto", "light", "dark"];
+  var root = document.documentElement;
+  var btn = document.querySelector(".theme-toggle");
+  if (!btn) return;
+  function apply(mode) {
+    if (mode === "auto") {
+      root.removeAttribute("data-theme");
+      try { localStorage.removeItem(KEY); } catch (e) {}
+    } else {
+      root.setAttribute("data-theme", mode);
+      try { localStorage.setItem(KEY, mode); } catch (e) {}
+    }
+    btn.setAttribute("data-mode", mode);
+    btn.setAttribute("aria-label", "Theme: " + mode);
+    btn.title = "Theme: " + mode;
+  }
+  var stored = "auto";
+  try { var t = localStorage.getItem(KEY); if (t === "light" || t === "dark") stored = t; } catch (e) {}
+  btn.addEventListener("click", function () {
+    apply(MODES[(MODES.indexOf(btn.getAttribute("data-mode")) + 1) % MODES.length]);
+  });
+  apply(stored);
+})();
+(function () {
+  var btn = document.querySelector(".nav-toggle");
+  var scrim = document.querySelector(".sidebar-scrim");
+  var sidebar = document.getElementById("sidebar");
+  if (!btn) return;
+  function set(open) {
+    document.body.classList.toggle("nav-open", open);
+    btn.setAttribute("aria-expanded", open ? "true" : "false");
+  }
+  btn.addEventListener("click", function () {
+    set(!document.body.classList.contains("nav-open"));
+  });
+  if (scrim) scrim.addEventListener("click", function () { set(false); });
+  if (sidebar) sidebar.addEventListener("click", function (e) {
+    if (e.target.closest("a")) set(false);
+  });
+  document.addEventListener("keydown", function (e) {
+    if (e.key === "Escape") set(false);
+  });
+})();
+</script>
+
+</body>
+</html>

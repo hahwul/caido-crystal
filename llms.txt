@@ -1,0 +1,25 @@
+# caido.cr
+
+> Crystal client library for Caido's GraphQL API
+
+This is the documentation for caido.cr, a Crystal client library for Caido's GraphQL API.
+
+## Pages
+
+- [caido.cr](https://caido.cr.hahwul.com/): Crystal client library for Caido's GraphQL API
+
+## API Reference
+
+- [CaidoClient](https://caido.cr.hahwul.com/api-reference/client/): The GraphQL client interface
+- [Mutations](https://caido.cr.hahwul.com/api-reference/mutations/): Complete mutation module reference
+- [Queries](https://caido.cr.hahwul.com/api-reference/queries/): Complete query module reference
+- [Utils](https://caido.cr.hahwul.com/api-reference/utils/): Utility functions for query building and security
+
+## User Guide
+
+- [Basic Usage](https://caido.cr.hahwul.com/user-guide/basic-usage/): Client setup, queries, and mutations
+- [Getting Started](https://caido.cr.hahwul.com/user-guide/getting-started/): Prerequisites, installation, and your first caido.cr program
+- [Mutations](https://caido.cr.hahwul.com/user-guide/mutations/): Working with mutation helpers for write operations
+- [Pagination & Filtering](https://caido.cr.hahwul.com/user-guide/pagination-filtering/): Built-in utilities for paginated and filtered queries
+- [Queries](https://caido.cr.hahwul.com/user-guide/queries/): Working with query helpers for reading data
+

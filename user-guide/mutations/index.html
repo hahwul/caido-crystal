@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Working with mutation helpers for write operations">
+  <title>Mutations - caido.cr</title>
+  <script>(function(){try{var t=localStorage.getItem("hwaro-theme");if(t==="light"||t==="dark"){document.documentElement.setAttribute("data-theme",t)}}catch(e){}})()</script>
+  <meta property="og:title" content="Mutations">
+  <meta property="og:type" content="article">
+  <meta property="og:url" content="https://caido.cr.hahwul.com/user-guide/mutations/">
+  <meta property="og:description" content="Working with mutation helpers for write operations">
+  <meta property="og:image" content="https://caido.cr.hahwul.com/og-images/user-guide-mutations.png">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Mutations">
+  <meta name="twitter:description" content="Working with mutation helpers for write operations">
+  <meta name="twitter:image" content="https://caido.cr.hahwul.com/og-images/user-guide-mutations.png">
+  <link rel="canonical" href="https://caido.cr.hahwul.com/user-guide/mutations/">
+  <link rel="stylesheet" href="https://caido.cr.hahwul.com/css/style.css">
+  
+  <meta name="apple-mobile-web-app-title" content="caido.cr">
+
+</head>
+<body data-section="user-guide">
+<a class="skip-link" href="#main">Skip to content</a>
+<header class="docs-header">
+  <button class="nav-toggle" type="button" aria-label="Menu" aria-expanded="false" aria-controls="sidebar">
+    <svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><path d="M2 4.5h12M2 8h12M2 11.5h12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+  </button>
+  <a href="https://caido.cr.hahwul.com/" class="logo">caido.cr <span>Documentation</span></a>
+  <nav class="header-nav" aria-label="Sections">
+    <a href="https://caido.cr.hahwul.com/user-guide/" class="active">User Guide</a><a href="https://caido.cr.hahwul.com/api-reference/">API Reference</a>
+  </nav>
+  <div class="header-right">
+    <button class="search-trigger" type="button" onclick="openSearch()" title="Search (⌘K)">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      <span>Search</span>
+      <kbd>&#8984;K</kbd>
+    </button>
+    <button class="theme-toggle" type="button" data-mode="auto" aria-label="Theme: auto" title="Theme: auto">
+      <svg class="tt-auto" width="15" height="15" viewBox="0 0 16 16" aria-hidden="true"><circle cx="8" cy="8" r="6.25" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M8 1.75a6.25 6.25 0 0 1 0 12.5z" fill="currentColor"/></svg>
+      <svg class="tt-light" width="15" height="15" viewBox="0 0 16 16" aria-hidden="true"><circle cx="8" cy="8" r="3.25" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M8 .9v2M8 13.1v2M.9 8h2M13.1 8h2M2.98 2.98l1.42 1.42M11.6 11.6l1.42 1.42M13.02 2.98L11.6 4.4M4.4 11.6l-1.42 1.42" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+      <svg class="tt-dark" width="15" height="15" viewBox="0 0 16 16" aria-hidden="true"><path d="M13.4 9.9A5.8 5.8 0 0 1 6.1 2.6a5.8 5.8 0 1 0 7.3 7.3z" fill="currentColor"/></svg>
+    </button>
+    <a class="gh-link" href="https://github.com/hahwul/caido.cr" aria-label="GitHub repository">
+      <svg width="17" height="17" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12"/></svg>
+    </a>
+  </div>
+</header>
+<div class="search-overlay" id="searchOverlay" onclick="if(event.target===this)closeSearch()">
+  <div class="search-modal">
+    <div class="search-input-wrap">
+      <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      <input type="search" id="searchInput" aria-label="Search" placeholder="Search documentation..." autocomplete="off">
+      <kbd onclick="closeSearch()">ESC</kbd>
+    </div>
+    <div class="search-results" id="searchResults"></div>
+  </div>
+</div>
+<div class="docs-container">
+<aside class="docs-sidebar" id="sidebar">
+
+  
+  <div class="sidebar-section">
+    <div class="sidebar-title">User Guide</div>
+    <ul class="sidebar-links">
+      <li><a href="https://caido.cr.hahwul.com/user-guide/">Overview</a></li>
+      
+      <li><a href="https://caido.cr.hahwul.com/user-guide/getting-started/">Getting Started</a></li>
+      
+      <li><a href="https://caido.cr.hahwul.com/user-guide/basic-usage/">Basic Usage</a></li>
+      
+      <li><a href="https://caido.cr.hahwul.com/user-guide/queries/">Queries</a></li>
+      
+      <li><a href="https://caido.cr.hahwul.com/user-guide/mutations/" class="active" aria-current="page">Mutations</a></li>
+      
+      <li><a href="https://caido.cr.hahwul.com/user-guide/pagination-filtering/">Pagination &amp; Filtering</a></li>
+      
+    </ul>
+  </div>
+  
+  <div class="sidebar-section">
+    <div class="sidebar-title">API Reference</div>
+    <ul class="sidebar-links">
+      <li><a href="https://caido.cr.hahwul.com/api-reference/">Overview</a></li>
+      
+      <li><a href="https://caido.cr.hahwul.com/api-reference/client/">CaidoClient</a></li>
+      
+      <li><a href="https://caido.cr.hahwul.com/api-reference/queries/">Queries</a></li>
+      
+      <li><a href="https://caido.cr.hahwul.com/api-reference/mutations/">Mutations</a></li>
+      
+      <li><a href="https://caido.cr.hahwul.com/api-reference/utils/">Utils</a></li>
+      
+    </ul>
+  </div>
+  
+</aside>
+<div class="sidebar-scrim"></div>
+  <main id="main" class="docs-main">
+    <h1>Mutations</h1>
+    <p class="lede">Working with mutation helpers for write operations</p>
+    <h2 id="overview">Overview</h2>
+<p>The <code>CaidoMutations</code> module provides pre-built GraphQL mutation strings for creating, updating, and deleting Caido resources.</p>
+<h2 id="requests">Requests</h2>
+<p>Update request metadata:</p>
+<pre><code class="language-crystal hljs"><span class="hljs-comment"># Update metadata (color and label)</span>
+mutation <span class="hljs-operator">=</span> <span class="hljs-variable constant_">CaidoMutations</span><span class="hljs-variable constant_">::</span><span class="hljs-variable constant_">Requests</span>.update_metadata(
+  id: <span class="hljs-string">&quot;</span><span class="hljs-string">request-id</span><span class="hljs-string">&quot;</span><span class="hljs-string"></span>,
+  color: <span class="hljs-string">&quot;</span><span class="hljs-string">red</span><span class="hljs-string">&quot;</span><span class="hljs-string"></span>,
+  label: <span class="hljs-string">&quot;</span><span class="hljs-string">interesting</span><span class="hljs-string">&quot;</span><span class="hljs-string"></span>
+)
+response <span class="hljs-operator">=</span> client.query(mutation)
+
+<span class="hljs-comment"># Render a request</span>
+mutation <span class="hljs-operator">=</span> <span class="hljs-variable constant_">CaidoMutations</span><span class="hljs-variable constant_">::</span><span class="hljs-variable constant_">Requests</span>.render(id: <span class="hljs-string">&quot;</span><span class="hljs-string">request-id</span><span class="hljs-string">&quot;</span><span class="hljs-string"></span>)
+response <span class="hljs-operator">=</span> client.query(mutation)
+</code></pre>
+<h2 id="intercept">Intercept</h2>
+<p>Control the proxy intercept:</p>
+<pre><code class="language-crystal hljs"><span class="hljs-comment"># Pause/resume interception</span>
+mutation <span class="hljs-operator">=</span> <span class="hljs-variable constant_">CaidoMutations</span><span class="hljs-variable constant_">::</span><span class="hljs-variable constant_">Intercept</span>.pause
+mutation <span class="hljs-operator">=</span> <span class="hljs-variable constant_">CaidoMutations</span><span class="hljs-variable constant_">::</span><span class="hljs-variable constant_">Intercept</span>.resume
+
+<span class="hljs-comment"># Forward an intercepted message</span>
+mutation <span class="hljs-operator">=</span> <span class="hljs-variable constant_">CaidoMutations</span><span class="hljs-variable constant_">::</span><span class="hljs-variable constant_">Intercept</span>.forward_message(
+  id: <span class="hljs-string">&quot;</span><span class="hljs-string">message-id</span><span class="hljs-string">&quot;</span><span class="hljs-string"></span>,
+  request: <span class="hljs-string">&quot;</span><span class="hljs-string">GET / HTTP/1.1</span><span class="hljs-string">\r</span><span class="hljs-string">\n</span><span class="hljs-string">Host: example.com</span><span class="hljs-string">\r</span><span class="hljs-string">\n</span><span class="hljs-string">\r</span><span class="hljs-string">\n</span><span class="hljs-string">&quot;</span><span class="hljs-string"></span>,
+  response: <span class="hljs-string">&quot;</span><span class="hljs-string">&quot;</span><span class="hljs-string"></span>
+)
+response <span class="hljs-operator">=</span> client.query(mutation)
+
+<span class="hljs-comment"># Drop an intercepted message</span>
+mutation <span class="hljs-operator">=</span> <span class="hljs-variable constant_">CaidoMutations</span><span class="hljs-variable constant_">::</span><span class="hljs-variable constant_">Intercept</span>.drop_message(id: <span class="hljs-string">&quot;</span><span class="hljs-string">message-id</span><span class="hljs-string">&quot;</span><span class="hljs-string"></span>)
+response <span class="hljs-operator">=</span> client.query(mutation)
+</code></pre>
+<h2 id="scopes">Scopes</h2>
+<p>Manage target scopes:</p>
+<pre><code class="language-crystal hljs"><span class="hljs-comment"># Create a scope</span>
+mutation <span class="hljs-operator">=</span> <span class="hljs-variable constant_">CaidoMutations</span><span class="hljs-variable constant_">::</span><span class="hljs-variable constant_">Scopes</span>.create(
+  name: <span class="hljs-string">&quot;</span><span class="hljs-string">My Target</span><span class="hljs-string">&quot;</span><span class="hljs-string"></span>,
+  allowlist: [<span class="hljs-string">&quot;</span><span class="hljs-string">*.example.com</span><span class="hljs-string">&quot;</span><span class="hljs-string"></span>, <span class="hljs-string">&quot;</span><span class="hljs-string">api.example.com</span><span class="hljs-string">&quot;</span><span class="hljs-string"></span>],
+  denylist: [<span class="hljs-string">&quot;</span><span class="hljs-string">admin.example.com</span><span class="hljs-string">&quot;</span><span class="hljs-string"></span>]
+)
+response <span class="hljs-operator">=</span> client.query(mutation)
+
+<span class="hljs-comment"># Update a scope</span>
+mutation <span class="hljs-operator">=</span> <span class="hljs-variable constant_">CaidoMutations</span><span class="hljs-variable constant_">::</span><span class="hljs-variable constant_">Scopes</span>.update(
+  id: <span class="hljs-string">&quot;</span><span class="hljs-string">scope-id</span><span class="hljs-string">&quot;</span><span class="hljs-string"></span>,
+  name: <span class="hljs-string">&quot;</span><span class="hljs-string">Updated Target</span><span class="hljs-string">&quot;</span><span class="hljs-string"></span>,
+  allowlist: [<span class="hljs-string">&quot;</span><span class="hljs-string">*.example.com</span><span class="hljs-string">&quot;</span><span class="hljs-string"></span>],
+  denylist: <span class="hljs-operator">[]</span>
+)
+response <span class="hljs-operator">=</span> client.query(mutation)
+
+<span class="hljs-comment"># Delete a scope</span>
+mutation <span class="hljs-operator">=</span> <span class="hljs-variable constant_">CaidoMutations</span><span class="hljs-variable constant_">::</span><span class="hljs-variable constant_">Scopes</span>.delete(id: <span class="hljs-string">&quot;</span><span class="hljs-string">scope-id</span><span class="hljs-string">&quot;</span><span class="hljs-string"></span>)
+response <span class="hljs-operator">=</span> client.query(mutation)
+</code></pre>
+<h2 id="findings">Findings</h2>
+<p>Manage security findings:</p>
+<pre><code class="language-crystal hljs"><span class="hljs-comment"># Create a finding</span>
+mutation <span class="hljs-operator">=</span> <span class="hljs-variable constant_">CaidoMutations</span><span class="hljs-variable constant_">::</span><span class="hljs-variable constant_">Findings</span>.create(
+  request_id: <span class="hljs-string">&quot;</span><span class="hljs-string">req-123</span><span class="hljs-string">&quot;</span><span class="hljs-string"></span>,
+  title: <span class="hljs-string">&quot;</span><span class="hljs-string">SQL Injection</span><span class="hljs-string">&quot;</span><span class="hljs-string"></span>,
+  description: <span class="hljs-string">&quot;</span><span class="hljs-string">Found in login form parameter</span><span class="hljs-string">&quot;</span><span class="hljs-string"></span>,
+  reporter: <span class="hljs-string">&quot;</span><span class="hljs-string">manual-testing</span><span class="hljs-string">&quot;</span><span class="hljs-string"></span>
+)
+response <span class="hljs-operator">=</span> client.query(mutation)
+
+<span class="hljs-comment"># Update a finding</span>
+mutation <span class="hljs-operator">=</span> <span class="hljs-variable constant_">CaidoMutations</span><span class="hljs-variable constant_">::</span><span class="hljs-variable constant_">Findings</span>.update(
+  id: <span class="hljs-string">&quot;</span><span class="hljs-string">finding-id</span><span class="hljs-string">&quot;</span><span class="hljs-string"></span>,
+  title: <span class="hljs-string">&quot;</span><span class="hljs-string">SQL Injection (Confirmed)</span><span class="hljs-string">&quot;</span><span class="hljs-string"></span>,
+  description: <span class="hljs-string">&quot;</span><span class="hljs-string">Confirmed blind SQL injection</span><span class="hljs-string">&quot;</span><span class="hljs-string"></span>
+)
+response <span class="hljs-operator">=</span> client.query(mutation)
+
+<span class="hljs-comment"># Delete findings</span>
+mutation <span class="hljs-operator">=</span> <span class="hljs-variable constant_">CaidoMutations</span><span class="hljs-variable constant_">::</span><span class="hljs-variable constant_">Findings</span>.delete(ids: [<span class="hljs-string">&quot;</span><span class="hljs-string">finding-1</span><span class="hljs-string">&quot;</span><span class="hljs-string"></span>, <span class="hljs-string">&quot;</span><span class="hljs-string">finding-2</span><span class="hljs-string">&quot;</span><span class="hljs-string"></span>])
+response <span class="hljs-operator">=</span> client.query(mutation)
+
+<span class="hljs-comment"># Export findings</span>
+mutation <span class="hljs-operator">=</span> <span class="hljs-variable constant_">CaidoMutations</span><span class="hljs-variable constant_">::</span><span class="hljs-variable constant_">Findings</span>.export(ids: [<span class="hljs-string">&quot;</span><span class="hljs-string">finding-1</span><span class="hljs-string">&quot;</span><span class="hljs-string"></span>])
+response <span class="hljs-operator">=</span> client.query(mutation)
+</code></pre>
+<h2 id="workflows">Workflows</h2>
+<p>Manage automation workflows:</p>
+<pre><code class="language-crystal hljs"><span class="hljs-comment"># Create a workflow</span>
+mutation <span class="hljs-operator">=</span> <span class="hljs-variable constant_">CaidoMutations</span><span class="hljs-variable constant_">::</span><span class="hljs-variable constant_">Workflows</span>.create(
+  name: <span class="hljs-string">&quot;</span><span class="hljs-string">My Workflow</span><span class="hljs-string">&quot;</span><span class="hljs-string"></span>,
+  kind: <span class="hljs-string">&quot;</span><span class="hljs-string">active</span><span class="hljs-string">&quot;</span><span class="hljs-string"></span>,
+  definition: <span class="hljs-string">&quot;</span><span class="hljs-string">{}</span><span class="hljs-string">&quot;</span><span class="hljs-string"></span>
+)
+response <span class="hljs-operator">=</span> client.query(mutation)
+
+<span class="hljs-comment"># Toggle workflow</span>
+mutation <span class="hljs-operator">=</span> <span class="hljs-variable constant_">CaidoMutations</span><span class="hljs-variable constant_">::</span><span class="hljs-variable constant_">Workflows</span>.toggle(id: <span class="hljs-string">&quot;</span><span class="hljs-string">workflow-id</span><span class="hljs-string">&quot;</span><span class="hljs-string"></span>, enabled: <span class="hljs-literal">true</span>)
+response <span class="hljs-operator">=</span> client.query(mutation)
+
+<span class="hljs-comment"># Run workflow on a request</span>
+mutation <span class="hljs-operator">=</span> <span class="hljs-variable constant_">CaidoMutations</span><span class="hljs-variable constant_">::</span><span class="hljs-variable constant_">Workflows</span>.run_active(
+  id: <span class="hljs-string">&quot;</span><span class="hljs-string">workflow-id</span><span class="hljs-string">&quot;</span><span class="hljs-string"></span>,
+  request_id: <span class="hljs-string">&quot;</span><span class="hljs-string">request-id</span><span class="hljs-string">&quot;</span><span class="hljs-string"></span>
+)
+response <span class="hljs-operator">=</span> client.query(mutation)
+
+<span class="hljs-comment"># Delete workflow</span>
+mutation <span class="hljs-operator">=</span> <span class="hljs-variable constant_">CaidoMutations</span><span class="hljs-variable constant_">::</span><span class="hljs-variable constant_">Workflows</span>.delete(id: <span class="hljs-string">&quot;</span><span class="hljs-string">workflow-id</span><span class="hljs-string">&quot;</span><span class="hljs-string"></span>)
+response <span class="hljs-operator">=</span> client.query(mutation)
+</code></pre>
+<h2 id="replay">Replay</h2>
+<p>Manage request replay sessions:</p>
+<pre><code class="language-crystal hljs"><span class="hljs-comment"># Create a replay session</span>
+mutation <span class="hljs-operator">=</span> <span class="hljs-variable constant_">CaidoMutations</span><span class="hljs-variable constant_">::</span><span class="hljs-variable constant_">Replay</span>.create_session(
+  name: <span class="hljs-string">&quot;</span><span class="hljs-string">Test Session</span><span class="hljs-string">&quot;</span><span class="hljs-string"></span>,
+  source: <span class="hljs-string">&quot;</span><span class="hljs-string">request-source</span><span class="hljs-string">&quot;</span><span class="hljs-string"></span>,
+  collection_id: <span class="hljs-string">&quot;</span><span class="hljs-string">collection-id</span><span class="hljs-string">&quot;</span><span class="hljs-string"></span>
+)
+response <span class="hljs-operator">=</span> client.query(mutation)
+
+<span class="hljs-comment"># Start a replay task</span>
+mutation <span class="hljs-operator">=</span> <span class="hljs-variable constant_">CaidoMutations</span><span class="hljs-variable constant_">::</span><span class="hljs-variable constant_">Replay</span>.start_task(session_id: <span class="hljs-string">&quot;</span><span class="hljs-string">session-id</span><span class="hljs-string">&quot;</span><span class="hljs-string"></span>)
+response <span class="hljs-operator">=</span> client.query(mutation)
+
+<span class="hljs-comment"># Create a collection</span>
+mutation <span class="hljs-operator">=</span> <span class="hljs-variable constant_">CaidoMutations</span><span class="hljs-variable constant_">::</span><span class="hljs-variable constant_">Replay</span>.create_collection(name: <span class="hljs-string">&quot;</span><span class="hljs-string">My Collection</span><span class="hljs-string">&quot;</span><span class="hljs-string"></span>)
+response <span class="hljs-operator">=</span> client.query(mutation)
+</code></pre>
+<h2 id="automate">Automate</h2>
+<p>Control automated attack sessions:</p>
+<pre><code class="language-crystal hljs"><span class="hljs-comment"># Create a session</span>
+mutation <span class="hljs-operator">=</span> <span class="hljs-variable constant_">CaidoMutations</span><span class="hljs-variable constant_">::</span><span class="hljs-variable constant_">Automate</span>.create_session(
+  name: <span class="hljs-string">&quot;</span><span class="hljs-string">Brute Force</span><span class="hljs-string">&quot;</span><span class="hljs-string"></span>,
+  host: <span class="hljs-string">&quot;</span><span class="hljs-string">example.com</span><span class="hljs-string">&quot;</span><span class="hljs-string"></span>,
+  port: <span class="hljs-number">443</span>,
+  is_tls: <span class="hljs-literal">true</span>
+)
+response <span class="hljs-operator">=</span> client.query(mutation)
+
+<span class="hljs-comment"># Start/pause/resume/cancel tasks</span>
+mutation <span class="hljs-operator">=</span> <span class="hljs-variable constant_">CaidoMutations</span><span class="hljs-variable constant_">::</span><span class="hljs-variable constant_">Automate</span>.start_task(session_id: <span class="hljs-string">&quot;</span><span class="hljs-string">session-id</span><span class="hljs-string">&quot;</span><span class="hljs-string"></span>)
+mutation <span class="hljs-operator">=</span> <span class="hljs-variable constant_">CaidoMutations</span><span class="hljs-variable constant_">::</span><span class="hljs-variable constant_">Automate</span>.pause_task(id: <span class="hljs-string">&quot;</span><span class="hljs-string">task-id</span><span class="hljs-string">&quot;</span><span class="hljs-string"></span>)
+mutation <span class="hljs-operator">=</span> <span class="hljs-variable constant_">CaidoMutations</span><span class="hljs-variable constant_">::</span><span class="hljs-variable constant_">Automate</span>.resume_task(id: <span class="hljs-string">&quot;</span><span class="hljs-string">task-id</span><span class="hljs-string">&quot;</span><span class="hljs-string"></span>)
+mutation <span class="hljs-operator">=</span> <span class="hljs-variable constant_">CaidoMutations</span><span class="hljs-variable constant_">::</span><span class="hljs-variable constant_">Automate</span>.cancel_task(id: <span class="hljs-string">&quot;</span><span class="hljs-string">task-id</span><span class="hljs-string">&quot;</span><span class="hljs-string"></span>)
+</code></pre>
+<h2 id="tamper-rules">Tamper Rules</h2>
+<p>Manage request/response tampering:</p>
+<pre><code class="language-crystal hljs"><span class="hljs-comment"># Create a tamper rule</span>
+mutation <span class="hljs-operator">=</span> <span class="hljs-variable constant_">CaidoMutations</span><span class="hljs-variable constant_">::</span><span class="hljs-variable constant_">Tamper</span>.create_rule
+response <span class="hljs-operator">=</span> client.query(mutation)
+
+<span class="hljs-comment"># Toggle a rule</span>
+mutation <span class="hljs-operator">=</span> <span class="hljs-variable constant_">CaidoMutations</span><span class="hljs-variable constant_">::</span><span class="hljs-variable constant_">Tamper</span>.toggle_rule(id: <span class="hljs-string">&quot;</span><span class="hljs-string">rule-id</span><span class="hljs-string">&quot;</span><span class="hljs-string"></span>, enabled: <span class="hljs-literal">true</span>)
+response <span class="hljs-operator">=</span> client.query(mutation)
+
+<span class="hljs-comment"># Manage collections</span>
+mutation <span class="hljs-operator">=</span> <span class="hljs-variable constant_">CaidoMutations</span><span class="hljs-variable constant_">::</span><span class="hljs-variable constant_">Tamper</span>.create_collection
+mutation <span class="hljs-operator">=</span> <span class="hljs-variable constant_">CaidoMutations</span><span class="hljs-variable constant_">::</span><span class="hljs-variable constant_">Tamper</span>.delete_collection(id: <span class="hljs-string">&quot;</span><span class="hljs-string">collection-id</span><span class="hljs-string">&quot;</span><span class="hljs-string"></span>)
+</code></pre>
+<h2 id="dns-proxies">DNS &amp; Proxies</h2>
+<p>Configure DNS and upstream proxies:</p>
+<pre><code class="language-crystal hljs"><span class="hljs-comment"># DNS rewrites</span>
+mutation <span class="hljs-operator">=</span> <span class="hljs-variable constant_">CaidoMutations</span><span class="hljs-variable constant_">::</span><span class="hljs-variable constant_">DNS</span>.create_rewrite
+mutation <span class="hljs-operator">=</span> <span class="hljs-variable constant_">CaidoMutations</span><span class="hljs-variable constant_">::</span><span class="hljs-variable constant_">DNS</span>.delete_rewrite(id: <span class="hljs-string">&quot;</span><span class="hljs-string">rewrite-id</span><span class="hljs-string">&quot;</span><span class="hljs-string"></span>)
+
+<span class="hljs-comment"># DNS upstreams</span>
+mutation <span class="hljs-operator">=</span> <span class="hljs-variable constant_">CaidoMutations</span><span class="hljs-variable constant_">::</span><span class="hljs-variable constant_">DNS</span>.create_upstream
+mutation <span class="hljs-operator">=</span> <span class="hljs-variable constant_">CaidoMutations</span><span class="hljs-variable constant_">::</span><span class="hljs-variable constant_">DNS</span>.delete_upstream(id: <span class="hljs-string">&quot;</span><span class="hljs-string">upstream-id</span><span class="hljs-string">&quot;</span><span class="hljs-string"></span>)
+
+<span class="hljs-comment"># HTTP upstream proxies</span>
+mutation <span class="hljs-operator">=</span> <span class="hljs-variable constant_">CaidoMutations</span><span class="hljs-variable constant_">::</span><span class="hljs-variable constant_">UpstreamProxies</span>.create_http
+mutation <span class="hljs-operator">=</span> <span class="hljs-variable constant_">CaidoMutations</span><span class="hljs-variable constant_">::</span><span class="hljs-variable constant_">UpstreamProxies</span>.delete_http(id: <span class="hljs-string">&quot;</span><span class="hljs-string">proxy-id</span><span class="hljs-string">&quot;</span><span class="hljs-string"></span>)
+
+<span class="hljs-comment"># SOCKS upstream proxies</span>
+mutation <span class="hljs-operator">=</span> <span class="hljs-variable constant_">CaidoMutations</span><span class="hljs-variable constant_">::</span><span class="hljs-variable constant_">UpstreamProxies</span>.create_socks
+mutation <span class="hljs-operator">=</span> <span class="hljs-variable constant_">CaidoMutations</span><span class="hljs-variable constant_">::</span><span class="hljs-variable constant_">UpstreamProxies</span>.delete_socks(id: <span class="hljs-string">&quot;</span><span class="hljs-string">proxy-id</span><span class="hljs-string">&quot;</span><span class="hljs-string"></span>)
+</code></pre>
+<h2 id="authentication">Authentication</h2>
+<p>Handle authentication flows:</p>
+<pre><code class="language-crystal hljs"><span class="hljs-comment"># Start auth flow</span>
+mutation <span class="hljs-operator">=</span> <span class="hljs-variable constant_">CaidoMutations</span><span class="hljs-variable constant_">::</span><span class="hljs-variable constant_">Authentication</span>.start_flow
+response <span class="hljs-operator">=</span> client.query(mutation)
+
+<span class="hljs-comment"># Login as guest</span>
+mutation <span class="hljs-operator">=</span> <span class="hljs-variable constant_">CaidoMutations</span><span class="hljs-variable constant_">::</span><span class="hljs-variable constant_">Authentication</span>.login_guest
+response <span class="hljs-operator">=</span> client.query(mutation)
+
+<span class="hljs-comment"># Logout</span>
+mutation <span class="hljs-operator">=</span> <span class="hljs-variable constant_">CaidoMutations</span><span class="hljs-variable constant_">::</span><span class="hljs-variable constant_">Authentication</span>.logout
+response <span class="hljs-operator">=</span> client.query(mutation)
+</code></pre>
+
+    
+    <nav class="page-nav" aria-label="Adjacent pages">
+      
+      <a class="page-nav-link page-nav-prev" href="https://caido.cr.hahwul.com/user-guide/queries/" rel="prev">
+        <span class="page-nav-label">Previous</span>
+        <span class="page-nav-title">Queries</span>
+      </a>
+      
+      
+      <a class="page-nav-link page-nav-next" href="https://caido.cr.hahwul.com/user-guide/pagination-filtering/" rel="next">
+        <span class="page-nav-label">Next</span>
+        <span class="page-nav-title">Pagination &amp; Filtering</span>
+      </a>
+      
+    </nav>
+    
+    <div class="docs-footer">
+      <p>caido.cr documentation</p>
+      <div class="docs-footer-links">
+        <a href="https://github.com/hahwul/caido.cr">GitHub</a>
+        <a href="https://github.com/hahwul/hwaro">Built with Hwaro</a>
+      </div>
+    </div>
+  </main>
+</div>
+
+<script src="https://caido.cr.hahwul.com/js/search.js"></script>
+<script>
+(function () {
+  var KEY = "hwaro-theme";
+  var MODES = ["auto", "light", "dark"];
+  var root = document.documentElement;
+  var btn = document.querySelector(".theme-toggle");
+  if (!btn) return;
+  function apply(mode) {
+    if (mode === "auto") {
+      root.removeAttribute("data-theme");
+      try { localStorage.removeItem(KEY); } catch (e) {}
+    } else {
+      root.setAttribute("data-theme", mode);
+      try { localStorage.setItem(KEY, mode); } catch (e) {}
+    }
+    btn.setAttribute("data-mode", mode);
+    btn.setAttribute("aria-label", "Theme: " + mode);
+    btn.title = "Theme: " + mode;
+  }
+  var stored = "auto";
+  try { var t = localStorage.getItem(KEY); if (t === "light" || t === "dark") stored = t; } catch (e) {}
+  btn.addEventListener("click", function () {
+    apply(MODES[(MODES.indexOf(btn.getAttribute("data-mode")) + 1) % MODES.length]);
+  });
+  apply(stored);
+})();
+(function () {
+  var btn = document.querySelector(".nav-toggle");
+  var scrim = document.querySelector(".sidebar-scrim");
+  var sidebar = document.getElementById("sidebar");
+  if (!btn) return;
+  function set(open) {
+    document.body.classList.toggle("nav-open", open);
+    btn.setAttribute("aria-expanded", open ? "true" : "false");
+  }
+  btn.addEventListener("click", function () {
+    set(!document.body.classList.contains("nav-open"));
+  });
+  if (scrim) scrim.addEventListener("click", function () { set(false); });
+  if (sidebar) sidebar.addEventListener("click", function (e) {
+    if (e.target.closest("a")) set(false);
+  });
+  document.addEventListener("keydown", function (e) {
+    if (e.key === "Escape") set(false);
+  });
+})();
+</script>
+
+</body>
+</html>
