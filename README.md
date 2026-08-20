@@ -57,6 +57,39 @@ headers = {"Authorization" => "Bearer your-token-here"}
 client = CaidoClient.new "http://localhost:8080/graphql", headers
 ```
 
+### Timeouts
+
+Requests block indefinitely by default. Pass timeouts to bound them:
+
+```crystal
+client = CaidoClient.new(
+  "http://localhost:8080/graphql",
+  connect_timeout: 5.seconds,
+  read_timeout: 30.seconds
+)
+```
+
+### Variables
+
+Custom documents can take variables. They are sent in the GraphQL request's
+own `variables` object, never interpolated into the document:
+
+```crystal
+client.query(
+  "query GetRequest($id: ID!) { request(id: $id) { id host } }",
+  {"id" => "12345"}
+)
+```
+
+### Error handling
+
+- `CaidoClient::ConnectionError` — the request never produced a GraphQL
+  response (connection failure, timeout, non-2xx status, non-JSON body).
+- `CaidoClient::GraphQLError` — the server answered with `errors`. Besides
+  `#errors` (the messages), it carries `#raw_errors` (the untouched `errors`
+  entry, so `extensions`/`path`/`locations` stay reachable) and `#data` (the
+  partial result of a `data` + `errors` response).
+
 ### Examples
 
 See the `examples/` directory for usage examples:
