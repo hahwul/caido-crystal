@@ -111,4 +111,16 @@ module CaidoUtils
   def self.build_optional_string(key : String, value : String?) : String?
     value ? %Q(#{key}: "#{escape_graphql_string(value)}") : nil
   end
+
+  # Wraps an argument list in parentheses, or returns an empty string when
+  # every clause is blank.
+  #
+  # GraphQL's `Arguments` production requires at least one argument, so a
+  # field with no arguments must be written *without* parentheses — emitting
+  # `field()` is a syntax error the server rejects before it ever looks at
+  # the schema.
+  def self.build_arguments(*clauses : String?) : String
+    parts = clauses.to_a.compact.reject(&.blank?)
+    parts.empty? ? "" : "(#{parts.join(", ")})"
+  end
 end

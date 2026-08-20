@@ -129,10 +129,11 @@ module CaidoQueries
     # Get root sitemap entries
     def self.root_entries(scope_id : String? = nil)
       scope_clause = scope_id ? %Q(scopeId: "#{CaidoUtils.escape_graphql_string(scope_id)}") : ""
+      args = CaidoUtils.build_arguments(scope_clause)
 
       %Q(
         query GetSitemapRootEntries {
-          sitemapRootEntries(#{scope_clause}) {
+          sitemapRootEntries#{args} {
             nodes {
               #{SITEMAP_ENTRY_FIELDS}
             }
@@ -173,10 +174,11 @@ module CaidoQueries
     def self.entries(after : String? = nil, first : Int32 = 50, filter : String? = nil)
       filter_clause = CaidoUtils.build_filter_clause(filter)
       pagination = CaidoUtils.build_pagination(after: after, first: first)
+      args = CaidoUtils.build_arguments(pagination, filter_clause)
 
       %Q(
         query GetInterceptEntries {
-          interceptEntries(#{pagination} #{filter_clause}) {
+          interceptEntries#{args} {
             #{PAGE_INFO_FIELDS}
             nodes {
               id
@@ -271,10 +273,11 @@ module CaidoQueries
     def self.all(after : String? = nil, first : Int32 = 50, filter : String? = nil)
       pagination = CaidoUtils.build_pagination(after: after, first: first)
       filter_clause = filter ? %Q(filter: { reporter: "#{CaidoUtils.escape_graphql_string(filter)}" }) : ""
+      args = CaidoUtils.build_arguments(pagination, filter_clause)
 
       %Q(
         query GetFindings {
-          findings(#{pagination} #{filter_clause}) {
+          findings#{args} {
             #{PAGE_INFO_FIELDS}
             edges {
               cursor

@@ -19,6 +19,24 @@ private def with_graphql_server(status : Int32, body : String, & : String ->)
   end
 end
 
+# Same as `with_graphql_server` but hands the block the request bodies the
+# stub received, so a spec can assert on what actually went over the wire.
+private def with_recording_server(body : String, & : String, Array(String) ->)
+  requests = [] of String
+  server = HTTP::Server.new do |context|
+    requests << (context.request.body.try(&.gets_to_end) || "")
+    context.response.status_code = 200
+    context.response.print body
+  end
+  address = server.bind_tcp("127.0.0.1", 0)
+  spawn { server.listen }
+  begin
+    yield "http://#{address.address}:#{address.port}/graphql", requests
+  ensure
+    server.close
+  end
+end
+
 describe Caido do
   it "has a version" do
     Caido::VERSION.should eq("0.1.0")
@@ -1131,6 +1149,220 @@ describe "CaidoClient#query error handling (transport)" do
         ex.errors.size.should eq(1)
         ex.errors.first.should contain("a")
       end
+    end
+  end
+end
+
+describe "GraphQL document syntax" do
+  # GraphQL's `Arguments` production is `( Argument+ )` — at least one
+  # argument. A builder whose only argument is optional used to emit
+  # `field()` when it was omitted, which every GraphQL server rejects with a
+  # syntax error ("Expected Name, found )") before it even consults the
+  # schema. Every builder reachable with default arguments must therefore
+  # produce a document with no empty parentheses.
+  documents = {
+    "Queries::Requests.all"                => CaidoQueries::Requests.all,
+    "Queries::Requests.all(first: nil)"    => CaidoQueries::Requests.all(first: nil),
+    "Queries::Requests.by_offset"          => CaidoQueries::Requests.by_offset,
+    "Queries::Sitemap.root_entries"        => CaidoQueries::Sitemap.root_entries,
+    "Queries::Intercept.entries"           => CaidoQueries::Intercept.entries,
+    "Queries::Findings.all"                => CaidoQueries::Findings.all,
+    "Queries::Replay.sessions"             => CaidoQueries::Replay.sessions,
+    "Queries::Replay.collections"          => CaidoQueries::Replay.collections,
+    "Queries::Replay.session_entries"      => CaidoQueries::Replay.session_entries("s1"),
+    "Queries::Automate.sessions"           => CaidoQueries::Automate.sessions,
+    "Queries::Automate.tasks"              => CaidoQueries::Automate.tasks,
+    "Mutations::Intercept.delete_entries"  => CaidoMutations::Intercept.delete_entries,
+    "Mutations::Intercept.forward_message" => CaidoMutations::Intercept.forward_message("m1"),
+    "Mutations::Findings.delete"           => CaidoMutations::Findings.delete,
+    "Mutations::Findings.export"           => CaidoMutations::Findings.export,
+    "Mutations::Environments.select"       => CaidoMutations::Environments.select,
+  }
+
+  documents.each do |label, document|
+    it "emits no empty argument list for #{label}" do
+      document.should_not match(/[A-Za-z_][0-9A-Za-z_]*\(\s*\)/)
+    end
+  end
+
+  it "still emits the argument list when a value is supplied" do
+    CaidoQueries::Sitemap.root_entries(scope_id: "s1").should contain(%Q(sitemapRootEntries(scopeId: "s1")))
+    CaidoMutations::Intercept.delete_entries(filter: "host:x").should contain(%Q(deleteInterceptEntries(filter: "host:x")))
+    CaidoMutations::Findings.delete(["f1"]).should contain(%Q(deleteFindings(input: { ids: ["f1"] })))
+    CaidoMutations::Environments.select("e1").should contain(%Q(selectEnvironment(id: "e1")))
+  end
+end
+
+describe CaidoUtils do
+  describe ".build_arguments" do
+    it "returns an empty string when every clause is blank" do
+      CaidoUtils.build_arguments("").should eq("")
+      CaidoUtils.build_arguments(nil, "", "  ").should eq("")
+    end
+
+    it "wraps the non-blank clauses in parentheses" do
+      CaidoUtils.build_arguments(%Q(id: "1")).should eq(%Q((id: "1")))
+      CaidoUtils.build_arguments("first: 50", "", %Q(filter: "x")).should eq(%Q((first: 50, filter: "x")))
+    end
+  end
+end
+
+describe CaidoClient::Transport do
+  describe ".sanitize_endpoint" do
+    it "leaves a credential-free endpoint untouched" do
+      CaidoClient::Transport.sanitize_endpoint("http://127.0.0.1:8080/graphql")
+        .should eq("http://127.0.0.1:8080/graphql")
+    end
+
+    it "strips userinfo credentials from the endpoint" do
+      sanitized = CaidoClient::Transport.sanitize_endpoint("https://user:sup3rsecret@caido.local/graphql?x=1")
+      sanitized.should_not contain("sup3rsecret")
+      sanitized.should_not contain("user")
+      sanitized.should eq("https://caido.local/graphql?x=1")
+    end
+  end
+end
+
+describe "CaidoClient#query transport hardening" do
+  it "raises ConnectionError (not a raw Exception) on a non-object JSON body" do
+    # `null`, an array and a bare scalar are all valid JSON but not valid
+    # GraphQL responses. Indexing them with `JSON::Any#[]?` raises a plain
+    # `Exception` that used to escape the library untyped.
+    {"null", "[1,2,3]", %("hello"), "42"}.each do |body|
+      with_graphql_server(200, body) do |endpoint|
+        client = CaidoClient.new(endpoint)
+        expect_raises(CaidoClient::ConnectionError, /not a JSON object/) do
+          client.query("{ viewer { id } }")
+        end
+      end
+    end
+  end
+
+  it "treats an explicit \"errors\": null as success" do
+    # Some servers spell "no errors" as `"errors": null` instead of omitting
+    # the key. `JSON::Any` wrapping a null is truthy in Crystal, so this used
+    # to raise a GraphQLError with an empty message and throw the data away.
+    body = %({"data":{"viewer":{"id":"42"}},"errors":null})
+    with_graphql_server(200, body) do |endpoint|
+      client = CaidoClient.new(endpoint)
+      data, _errors, _loading = client.query("{ viewer { id } }")
+      data.as(JSON::Any)["viewer"]["id"].as_s.should eq("42")
+    end
+  end
+
+  it "treats an empty errors array as success" do
+    body = %({"data":{"viewer":{"id":"42"}},"errors":[]})
+    with_graphql_server(200, body) do |endpoint|
+      client = CaidoClient.new(endpoint)
+      data, _errors, _loading = client.query("{ viewer { id } }")
+      data.as(JSON::Any)["viewer"]["id"].as_s.should eq("42")
+    end
+  end
+
+  it "raises GraphQLError for an error entry that carries no message" do
+    # An entry with only `extensions` is still a failure. It used to be
+    # silently dropped and the call reported as a success.
+    body = %({"data":null,"errors":[{"extensions":{"code":"UNAUTHENTICATED"}}]})
+    with_graphql_server(200, body) do |endpoint|
+      client = CaidoClient.new(endpoint)
+      expect_raises(CaidoClient::GraphQLError, /UNAUTHENTICATED/) do
+        client.query("{ viewer { id } }")
+      end
+    end
+  end
+
+  it "raises GraphQLError (not a raw Exception) when errors holds bare scalars" do
+    # `errors: ["boom"]` is malformed, but indexing a string with
+    # `err["message"]?` raised an untyped `Exception`.
+    body = %({"errors":["boom",7]})
+    with_graphql_server(200, body) do |endpoint|
+      client = CaidoClient.new(endpoint)
+      begin
+        client.query("{ viewer { id } }")
+        fail "should have raised GraphQLError"
+      rescue ex : CaidoClient::GraphQLError
+        ex.errors.should eq(["boom", "7"])
+      end
+    end
+  end
+
+  it "keeps the partial data and the raw errors on a GraphQLError" do
+    # `data` and `errors` may both be present. The call still fails, but the
+    # partial result and the error `extensions`/`path` must stay reachable.
+    body = %({"data":{"viewer":null},"errors":[{"message":"unauthorized","path":["viewer"],"extensions":{"code":"FORBIDDEN"}}]})
+    with_graphql_server(200, body) do |endpoint|
+      client = CaidoClient.new(endpoint)
+      begin
+        client.query("{ viewer { id } }")
+        fail "should have raised GraphQLError"
+      rescue ex : CaidoClient::GraphQLError
+        ex.errors.should eq(["unauthorized"])
+        ex.data.should_not be_nil
+        ex.data.as(JSON::Any).as_h.has_key?("viewer").should be_true
+        raw = ex.raw_errors.as(JSON::Any)
+        raw[0]["extensions"]["code"].as_s.should eq("FORBIDDEN")
+        raw[0]["path"][0].as_s.should eq("viewer")
+      end
+    end
+  end
+
+  it "never leaks endpoint credentials through a ConnectionError" do
+    # An endpoint may embed credentials that HTTP::Client turns into a Basic
+    # auth header. They must not end up in an exception message that a caller
+    # is likely to log or paste into a bug report.
+    client = CaidoClient.new("http://caido:sup3rsecret@127.0.0.1:1/graphql")
+    begin
+      client.query("{ __typename }")
+      fail "should have raised ConnectionError"
+    rescue ex : CaidoClient::ConnectionError
+      ex.message.to_s.should_not contain("sup3rsecret")
+      ex.message.to_s.should contain("http://127.0.0.1:1/graphql")
+    end
+  end
+
+  it "honours read_timeout instead of blocking forever" do
+    server = HTTP::Server.new do |context|
+      sleep 5.seconds
+      context.response.print "{}"
+    end
+    address = server.bind_tcp("127.0.0.1", 0)
+    spawn { server.listen }
+    begin
+      endpoint = "http://#{address.address}:#{address.port}/graphql"
+      client = CaidoClient.new(endpoint, read_timeout: 50.milliseconds)
+      expect_raises(CaidoClient::ConnectionError) do
+        client.query("{ viewer { id } }")
+      end
+    ensure
+      server.close
+    end
+  end
+end
+
+describe "CaidoClient#query variables" do
+  it "sends variables in the request's variables object, not the document" do
+    # Variables must travel in the GraphQL request envelope so their values
+    # can never be parsed as part of the document.
+    body = %({"data":{"request":null}})
+    with_recording_server(body) do |endpoint, requests|
+      client = CaidoClient.new(endpoint)
+      document = "query GetRequest($id: ID!) { request(id: $id) { id } }"
+      injection = "1\" ) { viewer { id } } #"
+      client.query(document, {"id" => injection})
+
+      payload = JSON.parse(requests.first)
+      payload["query"].as_s.should eq(document)
+      payload["variables"]["id"].as_s.should eq(injection)
+    end
+  end
+
+  it "sends an empty variables object when none are supplied" do
+    with_recording_server(%({"data":{}})) do |endpoint, requests|
+      client = CaidoClient.new(endpoint)
+      client.query("{ __typename }")
+
+      payload = JSON.parse(requests.first)
+      payload["variables"].as_h.should be_empty
     end
   end
 end

@@ -171,10 +171,11 @@ module CaidoMutations
     # Delete intercept entries
     def self.delete_entries(filter : String? = nil)
       filter_clause = CaidoUtils.build_filter_clause(filter)
+      args = CaidoUtils.build_arguments(filter_clause)
 
       %Q(
         mutation DeleteInterceptEntries {
-          deleteInterceptEntries(#{filter_clause}) {
+          deleteInterceptEntries#{args} {
             deletedCount
           }
         }
@@ -324,10 +325,11 @@ module CaidoMutations
                    else
                      ""
                    end
+      args = CaidoUtils.build_arguments(ids_clause)
 
       %Q(
         mutation DeleteFindings {
-          deleteFindings(#{ids_clause}) {
+          deleteFindings#{args} {
             deletedCount
           }
         }
@@ -1427,9 +1429,10 @@ module CaidoMutations
     # Select an active environment
     def self.select(environment_id : String? = nil)
       id_clause = environment_id ? %Q(id: "#{CaidoUtils.escape_graphql_string(environment_id)}") : ""
+      args = CaidoUtils.build_arguments(id_clause)
       %Q(
         mutation SelectEnvironment {
-          selectEnvironment(#{id_clause}) {
+          selectEnvironment#{args} {
             environment {
               id
               name
